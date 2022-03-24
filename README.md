@@ -28,7 +28,7 @@
 ##### LivePose
 
 * loader à l'environment virtuel (important pour certains programmes python) ". livepose\_venv/bin/activate" ou 'source livepose\_venv/bin/activate'
-* 'cd sources/livepose/'
+* ```cd sources/livepose/```
 * './livepose.sh -c livepose/configs/mmpose.json'
 * configurer le programme avec la bonne caméra commande "vim livepose/configs/mmpose.json"
 * streamer l'image avec obs
