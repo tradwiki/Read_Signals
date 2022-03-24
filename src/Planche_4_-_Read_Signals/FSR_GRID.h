@@ -1,3 +1,4 @@
+#pragma once
 #include "config.h"
 #include "FSR.h"
 
@@ -7,9 +8,11 @@ class FSR_GRID {
   FSR sensors[NUM_FSR_SENSORS];
   
   public:
-
+  FSR_GRID();
   FSR_GRID(const int* sensor_pins, const int* notes);
-
+  FSR_GRID& operator=(const FSR_GRID&);
+  
+  
   void calibrateOne(int currSensor);
   void calibrateAll();
   

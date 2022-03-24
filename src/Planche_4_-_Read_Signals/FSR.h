@@ -1,3 +1,4 @@
+#pragma once
 #include "config.h"
 #include "Arduino.h"
 
@@ -8,7 +9,7 @@ class FSR {
     int PIN;
     int NOTE;
     int INDEX;
-    boolean midiOn;
+    boolean WITH_MIDI;
     boolean oscOn;
 
 
@@ -34,11 +35,13 @@ class FSR {
     int baseline;
     int jumpThreshold;
     int tapsToIgnore;
-    unsigned long lastExternalMidiOn;
     String state;
     int sensorReading;
     int distanceAboveBaseline;
+    int velocity;
     int scaledVelocity;
+    int maxVelocity;
+    int constrainedVelocity;
     bool justJumped;
     int baselineBuffer[BASELINE_BUFFER_SIZE];
     int baselineBufferIndex;
@@ -56,32 +59,29 @@ class FSR {
     FSR();
     FSR(const int pin, const int note, const int index);
     FSR& operator=(const FSR&);
-    
-    void calibrate();
-    void read();
 
-    //setters and getters
     int getPin();
     int getNote();
-    void setPin(int n);
-    void setNote(int n);
-    
-    int bufferAverage(int * a, int aSize);
-    int varianceFromTarget(int * a, int aSize, int targer);
-    void updateRemainingTime(unsigned long (&left), unsigned long (&last));
-    int updateThreshold(int (&baselineBuff)[1000], int oldBaseline, int oldThreshold);
+    String getState();
 
+    void calibrate();
+    void readResistance();
     void jumping();
     void rising();
     void falling();
     void sustained();
     void baselining();
-    void externalMidiSustains(bool isLocal);
+    void baselineReset();
+    void sustainReset();
+    void sample();
 
-    void readExternalMIDI();
+    void updateSustainCount();
+    int updateThreshold(int (&baselineBuff)[BASELINE_BUFFER_SIZE], int oldBaseline, int oldThreshold);
+    void updateRemainingTime(unsigned long (&left), unsigned long (&last));
+    int varianceFromTarget(int * a, int aSize, int target);
+    int bufferAverage(int * a, int aSize);
+    void checkSustainCount();
 
-    void sendMidi();
-    void sendOsc();
-
-    void printReading();
+    void sendMidiSignal();
+    void sendMotorSignal();
 };
