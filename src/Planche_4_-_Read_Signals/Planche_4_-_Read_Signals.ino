@@ -14,5 +14,5 @@ void setup() {
 
 void loop() {
   fsr1.readResistance();
-  delay(500);
+  delay(10);
 }

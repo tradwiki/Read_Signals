@@ -42,9 +42,9 @@ void FSR::calibrate() {
 
 void FSR::readResistance() {
 
-  int sensorReading = analogRead(PIN);
-  int distanceAboveBaseline = max(0, sensorReading - baseline);
-
+  sensorReading = analogRead(PIN);
+  distanceAboveBaseline = max(0, sensorReading - baseline);
+  
 //  Serial.println(sensorReading);
   //If the signal is beyond the baseline
   if (distanceAboveBaseline >= jumpThreshold) {
@@ -63,6 +63,7 @@ void FSR::readResistance() {
       else {
         //        RISING
         //        rising(currentSensor, distanceAboveBaseline);
+        velocity = distanceAboveBaseline;
         rising();
         state = "RISING";
         sendMidiSignal();
@@ -80,6 +81,7 @@ void FSR::readResistance() {
       }
       //SIGNAL
       else {
+        velocity = distanceAboveBaseline;
         state = "SUSTAINED";
         sendMidiSignal();
         sustained();
@@ -219,6 +221,8 @@ void FSR::sendMidiSignal() {
   Serial.print(NOTE);
   Serial.print(" ");
   Serial.print(state);
+  Serial.print(" : ");
+  Serial.print(jumpThreshold);
   Serial.print(" : ");
   Serial.print(sensorReading);
   Serial.print(" ");
