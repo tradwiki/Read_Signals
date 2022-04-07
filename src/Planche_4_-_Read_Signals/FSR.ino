@@ -4,13 +4,11 @@ FSR::FSR() {
 
 }
 
-FSR::FSR(const int pin, const int note, const int index) {
+FSR::FSR(const int pin, const int note, const int index) { 
   PIN = pin;
   NOTE = note;
   INDEX = index;
   WITH_MIDI = true;
-  oscOn = false;
-
   IS_CLOCKING_PAD = false;
   baseline = 0;
   jumpThreshold = 0;
@@ -24,15 +22,19 @@ FSR& FSR::operator=(const FSR&)
 }
 
 int FSR::getPin() {
-  return PIN;
+  return this->PIN;
 }
 
 int FSR::getNote() {
   return NOTE;
 }
 
-String FSR::getState(){
+String FSR::getState() {
   return state;
+}
+
+int FSR::getSensorReading(){
+  return sensorReading;
 }
 
 void FSR::calibrate() {
@@ -41,15 +43,16 @@ void FSR::calibrate() {
 }
 
 void FSR::readResistance() {
-
   sensorReading = analogRead(PIN);
   distanceAboveBaseline = max(0, sensorReading - baseline);
+
+  //make state idle by default
+  state = "IDLE";
   
-//  Serial.println(sensorReading);
-  //If the signal is beyond the baseline
   if (distanceAboveBaseline >= jumpThreshold) {
 
     if (sustainCount == 0) {
+      state = "WAITING";
       updateSustainCount();
     }
     //RISING
@@ -57,6 +60,7 @@ void FSR::readResistance() {
       //WAIT
       //waiting is caused by velocity the velocity offset delay
       if (toWaitBeforeRising > 0) {
+        state = "WAITING";
         updateRemainingTime(toWaitBeforeRising, lastRisingTime);
       }
       //SIGNAL
@@ -66,7 +70,7 @@ void FSR::readResistance() {
         velocity = distanceAboveBaseline;
         rising();
         state = "RISING";
-        sendMidiSignal();
+        //        sendMidiSignal();
       }
     }
     //SUSTAINING
@@ -83,7 +87,6 @@ void FSR::readResistance() {
       else {
         velocity = distanceAboveBaseline;
         state = "SUSTAINED";
-        sendMidiSignal();
         sustained();
       }
     }
@@ -96,11 +99,12 @@ void FSR::readResistance() {
       //WAIT
       if (toWaitBeforeFalling) {
         updateRemainingTime(toWaitBeforeFalling, lastRisingTime);
+        state = "WAITING";
       }
       //SIGNAL
       else {
         state = "FALLING";
-        sendMidiSignal();
+        //        sendMidiSignal();
         falling();
       }
     }
@@ -115,10 +119,12 @@ void FSR::readResistance() {
       }
       //WAIT
       else if (toWaitBeforeBaseline > 0) {
+        state = "WAITING";
         updateRemainingTime(toWaitBeforeBaseline, lastBaselineTime);
       }
       //SAMPLE
       else {
+        state = "WAITING";
         baselineBuffer[baselineBufferIndex] = sensorReading;
         baselineBufferIndex++;
 
@@ -218,19 +224,9 @@ void FSR::updateSustainCount() {
 }
 
 void FSR::sendMidiSignal() {
-  Serial.print(NOTE);
-  Serial.print(" ");
-  Serial.print(state);
-  Serial.print(" : ");
-  Serial.print(jumpThreshold);
-  Serial.print(" : ");
-  Serial.print(sensorReading);
-  Serial.print(" ");
-  Serial.print(velocity);
-  Serial.print(",");
-  Serial.println(scaledVelocity);
   if (WITH_MIDI) {
     if (state == "RISING") {
+      Serial.println("RISING");
       usbMIDI.sendNoteOn(NOTE, scaledVelocity, MIDI_CHANNEL);
 
       if (IS_CLOCKING_PAD) {
@@ -238,11 +234,12 @@ void FSR::sendMidiSignal() {
         usbMIDI.send_now();
       }
     }
-    else if (state = "SUSTAINED") {
+    else if (state == "SUSTAINED") {
+      Serial.println("SUSTAINED");
       usbMIDI.sendPolyPressure(NOTE, map(constrain(velocity, jumpThreshold, 512), jumpThreshold, 512, 64, 127), MIDI_CHANNEL);
       usbMIDI.send_now();
     }
-    
+
     else if (state == "FALLING") {
       Serial.println("FALLING");
       usbMIDI.sendNoteOff(NOTE, 0, MIDI_CHANNEL);
@@ -250,6 +247,26 @@ void FSR::sendMidiSignal() {
     }
 
     while (usbMIDI.read()) {}
+  }
+}
+
+void FSR::printRead(){
+    Serial.print(NOTE);
+    Serial.print(" ");
+    Serial.print(state);
+    Serial.print(" : ");
+    Serial.print(jumpThreshold);
+    Serial.print(" : ");
+    Serial.print(sensorReading);
+    Serial.print(" , ");
+    Serial.print(velocity);
+    Serial.print(",");
+    Serial.println(scaledVelocity);
+}
+
+void FSR::printReadActive(){
+  if (state == "RISING" || state == "SUSTAINED"){
+    printRead();
   }
 }
 

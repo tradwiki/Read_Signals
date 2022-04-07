@@ -1,18 +1,18 @@
 #include <limits.h>
 #include "config.h"
-//#include "FSR_GRID.h"
-#include "FSR.H"
+#include "FSR_GRID.h"
+//#include "FSR.H"
 
-//FSR_GRID fsr_grid;
+FSR_GRID fsr_grid = FSR_GRID(FSR_SENSOR_PINS, FSR_NOTES);
 
-FSR fsr1 = FSR(25, 1, 1);
 void setup() {
-  fsr1.calibrate();
-  Serial.println("HI, this is a test");
-  Serial.println(fsr1.getPin());
+  Serial.begin(9600);
+  fsr_grid.calibrateAll();
 }
 
 void loop() {
-  fsr1.readResistance();
+  fsr_grid.readResistance();
+  fsr_grid.printReadActive();
+  fsr_grid.sendMidiSignal();
   delay(10);
 }

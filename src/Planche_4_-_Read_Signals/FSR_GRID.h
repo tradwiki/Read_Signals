@@ -5,7 +5,7 @@
 class FSR_GRID {
   private:
 
-  FSR sensors[NUM_FSR_SENSORS];
+  FSR* sensors[NUM_FSR_SENSORS];
   
   public:
   FSR_GRID();
@@ -16,8 +16,11 @@ class FSR_GRID {
   void calibrateOne(int currSensor);
   void calibrateAll();
   
-  void readAll();
-  void readOne(int currentSensor);
+  void readResistance();
+  void readResistance(int currentSensor);
+
+  void sendAllMidiSingals();
+  void sendOneMidiSignal();
   
   int bufferAverage(int * a, int aSize);
   int varianceFromTarget(int * a, int aSize, int targer);
@@ -34,5 +37,13 @@ class FSR_GRID {
   void printAllTriggered();
 
   void setMidiOn(bool setting);
-  void setOscOn(bool setting);  
+  void setOscOn(bool setting);
+
+  void printRead(int currSensor);
+  void printReadActive(int currSensor);
+  void printRead();
+  void printReadActive();
+
+  void sendMidiSignal();
+
 };

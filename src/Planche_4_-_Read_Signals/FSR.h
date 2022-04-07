@@ -10,8 +10,6 @@ class FSR {
     int NOTE;
     int INDEX;
     boolean WITH_MIDI;
-    boolean oscOn;
-
 
     bool IS_CLOCKING_PAD;
     static const int BASELINE_BUFFER_SIZE = 1000;
@@ -63,6 +61,7 @@ class FSR {
     int getPin();
     int getNote();
     String getState();
+    int getSensorReading();
 
     void calibrate();
     void readResistance();
@@ -84,4 +83,7 @@ class FSR {
 
     void sendMidiSignal();
     void sendMotorSignal();
+
+    void printRead();
+    void printReadActive();
 };
