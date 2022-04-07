@@ -24,4 +24,5 @@ class Piezo {
 
     void readResistance();
     void sendMidiSignal();
+    void printRead();
 };

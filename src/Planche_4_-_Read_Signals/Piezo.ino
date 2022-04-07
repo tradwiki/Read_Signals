@@ -1,4 +1,6 @@
 #include "Piezo.h"
+//use this to make sure no false positives
+//https://forum.arduino.cc/t/piezo-sensor-burst-reading-when-hit-please-help/214884/2
 
 Piezo::Piezo() {
 
@@ -10,6 +12,7 @@ Piezo::Piezo(const int pin, const int note, const int index) {
   INDEX = index;
   WITH_MIDI = true;
   state = "IDLE";
+  threshold = 100;
 };
 
 Piezo& Piezo::operator=(const Piezo&)
@@ -45,6 +48,11 @@ void Piezo::readResistance() {
 }
 
 void Piezo::sendMidiSignal() {
+
+  if (PIEZO_DEBUG) {
+    printRead();
+  }
+
   if (state == "ACTIVE") {
     usbMIDI.sendPolyPressure(NOTE, sensorRead, MIDI_CHANNEL);
     usbMIDI.send_now();
@@ -55,4 +63,12 @@ void Piezo::sendMidiSignal() {
     usbMIDI.sendNoteOff(NOTE, 0, MIDI_CHANNEL);
     usbMIDI.send_now();
   }
+}
+
+void Piezo::printRead() {
+  Serial.print(NOTE);
+  Serial.print(" ");
+  Serial.print(state);
+  Serial.print(" : ");
+  Serial.println(sensorRead);
 }
