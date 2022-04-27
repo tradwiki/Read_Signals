@@ -1,6 +1,7 @@
 #pragma once
 const bool DEBUG = false;
 const bool FSR_DEBUG = true;
+const bool PIEZO_DEBUG = true;
 
 const int BAUD_RATE = 9600;
 const int MIDI_CHANNEL = 1;
@@ -22,6 +23,7 @@ const int FSR_NOTES[] = {74, 76, 81, 83, 85, 86, 79, 78};
 const static int NUM_PIEZO_SENSORS = 4;
 const int PIEZO_SENSOR_PINS[] = {24, 40, 41, 19};
 const int PIEZO_NOTES[] = {1, 2, 3, 4};
+const int MAX_PIEZO_TIME = 10;
 
 // MOTOR VALUES
 const int TAPS_PER_PULSE = 1;

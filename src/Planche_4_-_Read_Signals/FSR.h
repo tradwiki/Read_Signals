@@ -87,3 +87,9 @@ class FSR {
     void printRead();
     void printReadActive();
 };
+
+void fsrGridSetup(FSR** FSR_GRID, const int* sensor_pins, const int* notes);
+void fsrGridRead(FSR** FSR_GRID);
+void fsrGridRead(FSR** FSR_GRID, int sensor);
+void fsrGridPrintReadActive(FSR** FSR_GRID);
+void fsrGridPrintReadActive(FSR** FSR_GRID, int sensor);

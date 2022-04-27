@@ -10,7 +10,9 @@ class Piezo {
     int INDEX;
     bool WITH_MIDI;
     int sensorRead;
-    int threshold;
+    int prevSensorRead;
+    int timer;
+    int threshold = 20;
     String state;
     
   public:
@@ -25,4 +27,11 @@ class Piezo {
     void readResistance();
     void sendMidiSignal();
     void printRead();
+    void printReadActive();
 };
+
+void piezoGridSetup(Piezo** PIEZO_GRID, const int* sensor_pins, const int* notes);
+void piezoGridRead(Piezo** PIEZO_GRID);
+void piezoGridRead(Piezo** PIEZO_GRID, int sensor);
+void piezoGridPrintReadActive(Piezo** PIEZO_GRID);
+void piezoGridPrintReadActive(Piezo** PIEZO_GRID, int sensor);

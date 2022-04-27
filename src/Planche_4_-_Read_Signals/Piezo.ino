@@ -11,7 +11,8 @@ Piezo::Piezo(const int pin, const int note, const int index) {
   NOTE = note;
   INDEX = index;
   WITH_MIDI = true;
-  state = "IDLE";
+//  default to rogue to get rid of risidual charge
+  state = "ROGUE";
   threshold = 100;
 };
 
@@ -34,27 +35,53 @@ int Piezo::getRead() {
 }
 
 void Piezo::readResistance() {
+  prevSensorRead = sensorRead;
   sensorRead = analogRead(PIN);
 
-  if (sensorRead > threshold) {
-    state = "ACTIVE";
+  if (sensorRead > threshold && state != "ROGUE") {
+
+    if (state == "ACTIVE"){
+      state = "SUSTAINED";
+    }
+
+    else {
+      state = "ACTIVE";
+    }
+    
     sendMidiSignal();
+    timer++;
+    // cut out the signal if there is a risidual charge
+    if (timer > MAX_PIEZO_TIME) {
+      state = "IDLE";
+      sendMidiSignal();
+      state = "ROGUE";
+    }
   }
 
-  if (sensorRead < threshold && state == "ACTIVE") {
+  if (sensorRead < threshold && state != "IDLE") {
     state = "IDLE";
+    timer = 0;
     sendMidiSignal();
   }
 }
 
 void Piezo::sendMidiSignal() {
 
+  
+  int mappedRead =  map(sensorRead, 0,  1023, 0, 127);
+  
   if (PIEZO_DEBUG) {
     printRead();
   }
 
   if (state == "ACTIVE") {
-    usbMIDI.sendPolyPressure(NOTE, sensorRead, MIDI_CHANNEL);
+    usbMIDI.sendNoteOn(NOTE, mappedRead, MIDI_CHANNEL);
+    usbMIDI.send_now();
+  }
+
+  else if (state == "SUSTAINED") {
+    Serial.println("SUSTAINED");
+    usbMIDI.sendPolyPressure(NOTE, mappedRead, MIDI_CHANNEL);
     usbMIDI.send_now();
   }
 
@@ -71,4 +98,37 @@ void Piezo::printRead() {
   Serial.print(state);
   Serial.print(" : ");
   Serial.println(sensorRead);
+}
+
+void Piezo::printReadActive() {
+  if (state == "ACTIVE") {
+    printRead();
+  }
+}
+
+void piezoGridSetup(Piezo** PIEZO_GRID, const int* sensor_pins, const int* notes) {
+  for (int i = 0; i < NUM_PIEZO_SENSORS; i++) {
+    PIEZO_GRID[i] = new Piezo(sensor_pins[i], notes[i], i);
+    //    PIEZO_GRID[i]->calibrate();
+  }
+}
+
+void piezoGridRead(Piezo** PIEZO_GRID) {
+  for (int i = 0; i < NUM_PIEZO_SENSORS; i++) {
+    PIEZO_GRID[i]->readResistance();
+  }
+}
+
+void piezoGridRead(Piezo** PIEZO_GRID, int sensor) {
+  PIEZO_GRID[sensor]->readResistance();
+}
+
+void piezoGridPrintReadActive(Piezo** PIEZO_GRID) {
+  for (int i = 0; i < NUM_PIEZO_SENSORS; i++) {
+    PIEZO_GRID[i]->printReadActive();
+  }
+}
+
+void piezoGridPrintReadActive(Piezo** PIEZO_GRID, int sensor) {
+  PIEZO_GRID[sensor]->printReadActive();
 }
