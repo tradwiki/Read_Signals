@@ -93,3 +93,5 @@ void fsrGridRead(FSR** FSR_GRID);
 void fsrGridRead(FSR** FSR_GRID, int sensor);
 void fsrGridPrintReadActive(FSR** FSR_GRID);
 void fsrGridPrintReadActive(FSR** FSR_GRID, int sensor);
+void fsrGridMidiOutput(FSR** FSR_GRID, int sensor);
+void fsrGridMidiOutput(FSR** FSR_GRID);

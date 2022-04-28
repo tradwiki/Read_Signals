@@ -364,3 +364,13 @@ void fsrGridPrintReadActive(FSR** FSR_GRID){
 void fsrGridPrintReadActive(FSR** FSR_GRID, int sensor){
     FSR_GRID[sensor]->printReadActive();
 }
+
+void fsrGridMidiOutput(FSR** FSR_GRID, int sensor){
+  FSR_GRID[sensor]->sendMidiSignal();
+}
+
+void fsrGridMidiOutput(FSR** FSR_GRID){
+  for (int i = 0; i < NUM_FSR_SENSORS; i++){
+     FSR_GRID[i]->sendMidiSignal(); 
+  }
+}

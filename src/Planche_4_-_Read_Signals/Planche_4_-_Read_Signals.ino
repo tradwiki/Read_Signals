@@ -19,11 +19,10 @@ void setup() {
 }
 
 void loop() {
-//  fsrGridRead(FSR_GRID);
-//  fsrGridPrintReadActive(FSR_GRID);
-//  p1.readResistance();
-//  p1.printReadActive();
-    piezoGridRead(PIEZO_GRID);
-    piezoGridPrintReadActive(PIEZO_GRID);
+  piezoGridRead(PIEZO_GRID);
+  piezoGridPrintReadActive(PIEZO_GRID);
+
+//  FSRGridRead
+  
   delay(10);
 }
