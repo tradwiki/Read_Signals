@@ -106,29 +106,29 @@ void Piezo::printReadActive() {
   }
 }
 
-void piezoGridSetup(Piezo** PIEZO_GRID, const int* sensor_pins, const int* notes) {
+void piezoSetup(Piezo** PIEZO_GRID, const int* sensor_pins, const int* notes) {
   for (int i = 0; i < NUM_PIEZO_SENSORS; i++) {
     PIEZO_GRID[i] = new Piezo(sensor_pins[i], notes[i], i);
     //    PIEZO_GRID[i]->calibrate();
   }
 }
 
-void piezoGridRead(Piezo** PIEZO_GRID) {
+void piezoRead(Piezo** PIEZO_GRID) {
   for (int i = 0; i < NUM_PIEZO_SENSORS; i++) {
     PIEZO_GRID[i]->readResistance();
   }
 }
 
-void piezoGridRead(Piezo** PIEZO_GRID, int sensor) {
+void piezoRead(Piezo** PIEZO_GRID, int sensor) {
   PIEZO_GRID[sensor]->readResistance();
 }
 
-void piezoGridPrintReadActive(Piezo** PIEZO_GRID) {
+void piezoPrintReadActive(Piezo** PIEZO_GRID) {
   for (int i = 0; i < NUM_PIEZO_SENSORS; i++) {
     PIEZO_GRID[i]->printReadActive();
   }
 }
 
-void piezoGridPrintReadActive(Piezo** PIEZO_GRID, int sensor) {
+void piezoPrintReadActive(Piezo** PIEZO_GRID, int sensor) {
   PIEZO_GRID[sensor]->printReadActive();
 }

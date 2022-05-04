@@ -30,8 +30,8 @@ class Piezo {
     void printReadActive();
 };
 
-void piezoGridSetup(Piezo** PIEZO_GRID, const int* sensor_pins, const int* notes);
-void piezoGridRead(Piezo** PIEZO_GRID);
-void piezoGridRead(Piezo** PIEZO_GRID, int sensor);
-void piezoGridPrintReadActive(Piezo** PIEZO_GRID);
-void piezoGridPrintReadActive(Piezo** PIEZO_GRID, int sensor);
+void piezoSetup(Piezo** PIEZO_GRID, const int* sensor_pins, const int* notes);
+void piezoRead(Piezo** PIEZO_GRID);
+void piezoRead(Piezo** PIEZO_GRID, int sensor);
+void piezoPrintReadActive(Piezo** PIEZO_GRID);
+void piezoPrintReadActive(Piezo** PIEZO_GRID, int sensor);

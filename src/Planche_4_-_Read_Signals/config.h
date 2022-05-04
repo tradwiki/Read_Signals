@@ -2,6 +2,7 @@
 const bool DEBUG = false;
 const bool FSR_DEBUG = true;
 const bool PIEZO_DEBUG = true;
+const bool MIDI_RECEIVE_DEBUG = true;
 
 const int BAUD_RATE = 9600;
 const int MIDI_CHANNEL = 1;
@@ -34,7 +35,10 @@ const bool WITH_MOTORS = true;
 const int NUM_MOTORS = 2;
 const int MOTOR_PINS[NUM_MOTORS] = {1, 2};
 const int SENSOR_TO_MOTOR[] = {1, 1, -1, -1, -1, -1, 0, 0};
+const int MOTOR_NOTES[2][2] = {{74, 76}, {79, 78}};
 unsigned const long MAX_MOTOR_PULSE_DURATION = 400 * MILLISECOND;
+unsigned const long MAX_MOTOR_PULSE_BREAK = 400 * MILLISECOND;
+const int MOTOR_THRESHOLD = 20;
 
 //External Midi
 unsigned long lastExternalMidiOn[NUM_FSR_SENSORS];

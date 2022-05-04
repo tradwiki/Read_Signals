@@ -338,38 +338,38 @@ int FSR::bufferAverage(int * a, int aSize) {
   return (int) (sum / i);
 }
 
-void fsrGridSetup(FSR** FSR_GRID, const int* sensor_pins, const int* notes) {
+void fsrSetup(FSR** FSR_GRID, const int* sensor_pins, const int* notes) {
   for (int i = 0; i < NUM_FSR_SENSORS; i++) {
     FSR_GRID[i] = new FSR(sensor_pins[i], notes[i], i);
     FSR_GRID[i]->calibrate();
   }
 }
 
-void fsrGridRead(FSR** FSR_GRID){
+void fsrRead(FSR** FSR_GRID){
     for (int i = 0; i < NUM_FSR_SENSORS; i++) {
     FSR_GRID[i]->readResistance();
   }
 }
 
-void fsrGridRead(FSR** FSR_GRID, int sensor){
+void fsrRead(FSR** FSR_GRID, int sensor){
     FSR_GRID[sensor]->readResistance();
 }
 
-void fsrGridPrintReadActive(FSR** FSR_GRID){
+void fsrPrintReadActive(FSR** FSR_GRID){
   for (int i = 0; i < NUM_FSR_SENSORS; i++) {
     FSR_GRID[i]->printReadActive();
   }
 }
 
-void fsrGridPrintReadActive(FSR** FSR_GRID, int sensor){
+void fsrPrintReadActive(FSR** FSR_GRID, int sensor){
     FSR_GRID[sensor]->printReadActive();
 }
 
-void fsrGridMidiOutput(FSR** FSR_GRID, int sensor){
+void fsrMidiOutput(FSR** FSR_GRID, int sensor){
   FSR_GRID[sensor]->sendMidiSignal();
 }
 
-void fsrGridMidiOutput(FSR** FSR_GRID){
+void fsrMidiOutput(FSR** FSR_GRID){
   for (int i = 0; i < NUM_FSR_SENSORS; i++){
      FSR_GRID[i]->sendMidiSignal(); 
   }
