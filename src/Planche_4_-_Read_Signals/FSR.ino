@@ -13,6 +13,7 @@ FSR::FSR(const int pin, const int note, const int index) {
   baseline = 0;
   jumpThreshold = 0;
   tapsToIgnore = 0;
+  scaledVelocity = 0;
   state = "IDLE";
 };
 
@@ -35,6 +36,10 @@ String FSR::getState() {
 
 int FSR::getSensorReading(){
   return sensorReading;
+}
+
+int FSR::getScaledVelocity(){
+  return scaledVelocity;
 }
 
 void FSR::calibrate() {
@@ -365,12 +370,13 @@ void fsrPrintReadActive(FSR** FSR_GRID, int sensor){
     FSR_GRID[sensor]->printReadActive();
 }
 
-void fsrMidiOutput(FSR** FSR_GRID, int sensor){
-  FSR_GRID[sensor]->sendMidiSignal();
+
+void sendFSRMidi(FSR** FSR_GRID){
+  for (int sensor = 0; sensor < NUM_FSR_SENSORS; sensor++){
+    FSR_GRID[sensor]->sendMidiSignal();
+  }
 }
 
-void fsrMidiOutput(FSR** FSR_GRID){
-  for (int i = 0; i < NUM_FSR_SENSORS; i++){
-     FSR_GRID[i]->sendMidiSignal(); 
-  }
+void sendFSRMidi(FSR** FSR_GRID, int sensor){
+  FSR_GRID[sensor]->sendMidiSignal();
 }

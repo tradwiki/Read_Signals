@@ -35,3 +35,13 @@ void piezoRead(Piezo** PIEZO_GRID);
 void piezoRead(Piezo** PIEZO_GRID, int sensor);
 void piezoPrintReadActive(Piezo** PIEZO_GRID);
 void piezoPrintReadActive(Piezo** PIEZO_GRID, int sensor);
+
+void sendPiezoMidi(Piezo** PIEZO_GRID){
+  for (int sensor = 0; sensor < NUM_PIEZO_SENSORS; sensor++){
+    PIEZO_GRID[sensor]->sendMidiSignal();
+  }
+}
+
+void sendPiezoMidi(Piezo** PIEZO_GRID, int sensor){
+  PIEZO_GRID[sensor]->sendMidiSignal();
+}

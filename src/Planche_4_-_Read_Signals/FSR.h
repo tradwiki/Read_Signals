@@ -62,6 +62,7 @@ class FSR {
     int getNote();
     String getState();
     int getSensorReading();
+    int getScaledVelocity();
 
     void calibrate();
     void readResistance();
@@ -93,5 +94,5 @@ void fsrRead(FSR** FSR_GRID);
 void fsrRead(FSR** FSR_GRID, int sensor);
 void fsrPrintReadActive(FSR** FSR_GRID);
 void fsrPrintReadActive(FSR** FSR_GRID, int sensor);
-void fsrMidiOutput(FSR** FSR_GRID, int sensor);
-void fsrMidiOutput(FSR** FSR_GRID);
+void sendFSRMidi(FSR** FSR_GRID, int sensor);
+void sendFSRMidi(FSR** FSR_GRID);

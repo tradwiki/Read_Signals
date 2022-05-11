@@ -53,22 +53,32 @@ void Motor::receiveNote(int note, int value) {
 
   if (rightNote) {
     if (state == "OFF" && value > MOTOR_THRESHOLD) {
+      Serial.print("MOTOR ");
+      Serial.print(INDEX);
+      Serial.println(" TURNED ON");
       motorOn();
     }
 
     if (state == "ON" && value < MOTOR_THRESHOLD) {
+      Serial.print("MOTOR ");
+      Serial.print(INDEX);
+      Serial.println(" TURNED OFF");
       motorOff();
     }
   }
-
 }
 
 void Motor::update() {
-
   //limiter so the motor doesn't stay on too long
   if ((millis() - timeStamp) >= MAX_MOTOR_PULSE_DURATION) {
     motorOff();
     timeStamp = millis();
   }
+}
 
+void Motor::printNotes() {
+  for (int i = 0; i < NUM_NOTES; i++) {
+    Serial.print(NOTES[i]);
+  }
+  Serial.println();
 }

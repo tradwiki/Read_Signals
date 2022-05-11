@@ -25,41 +25,12 @@ class Motor {
     void motorOff();
     void receiveNote(int note, int value);
     void update();
+    void printNotes();
 };
 
 void motorSetup(Motor** MOTOR_GRID){
-  
-}
-
-void readExternalMidi(Motor** MOTOR_GRID) {
-  if (usbMIDI.read()) {
-
-    byte note = usbMIDI.getData1();
-    byte velocity = usbMIDI.getData2();
-
-    if (usbMIDI.getType() == usbMIDI.NoteOn) {
-
-      for (int i = 0; i < NUM_MOTORS; i++) {
-        MOTOR_GRID[i]->receiveNote(note, velocity);
-      }
-
-      if (MIDI_RECEIVE_DEBUG) {
-        Serial.print("RECEIVED MIDI NOTE ON: ");
-        Serial.print(note);
-        Serial.print(" : ");
-        Serial.println(velocity);
-      }
-
-
-    } else if (usbMIDI.getType() == usbMIDI.NoteOff) {
-
-
-      for (int i = 0; i < NUM_MOTORS; i++) {
-        MOTOR_GRID[i]->receiveNote(note, velocity);
-      }
-
-      Serial.println(note);
-
-    }
+  for (int i = 0; i < NUM_MOTORS; i++){
+    MOTOR_GRID[i] = new Motor(MOTOR_PINS[i], MOTOR_NOTES[i], i);
+    MOTOR_GRID[i] -> motorOff();
   }
 }
