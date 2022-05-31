@@ -12,23 +12,6 @@ class FSR {
     boolean WITH_MIDI;
 
     bool IS_CLOCKING_PAD;
-    static const int BASELINE_BUFFER_SIZE = 1000;
-
-    //MAX READING DEPENDING ON VOLTAGE
-    const int MAX_READING = 1023;
-    const int MIN_THRESHOLD = 150;
-    const int MAX_THRESHOLD = 150;
-    const int MIN_JUMPING_RANGE = 80;
-
-    unsigned const long NOTE_VELOCITY_DELAY = 2 * MILLISECOND;
-    unsigned const long NOTE_ON_DELAY = 50 * MILLISECOND;
-    unsigned const long NOTE_OFF_DELAY = 50 * MILLISECOND;
-    unsigned const long SUSTAIN_DELAY = 100 * MILLISECOND;
-    unsigned const long BASELINE_SAMPLE_DELAY = 0.5 * MILLISECOND;
-    unsigned const long BASELINE_BLOWBACK_DELAY = 40 * MILLISECOND;
-
-    const int RETRO_JUMP_BLOWBACK_SAMPLES = (0.5 * MILLISECOND) / BASELINE_SAMPLE_DELAY;
-    const int MAX_CONSECUTIVE_SUSTAINS = (10 * SECOND) / SUSTAIN_DELAY;
 
     int baseline;
     int jumpThreshold;

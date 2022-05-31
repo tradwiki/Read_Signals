@@ -44,7 +44,8 @@ int FSR::getScaledVelocity(){
 
 void FSR::calibrate() {
   baseline = analogRead(PIN);
-  jumpThreshold = (MIN_THRESHOLD + MAX_THRESHOLD) / 2;
+  jumpThreshold = (FSR_MIN_THRESHOLD + FSR_MAX_THRESHOLD) / 2;
+  delay(5);
 }
 
 void FSR::readResistance() {
@@ -148,7 +149,7 @@ void FSR::jumping() {
 
 
 void FSR::rising() {
-  maxVelocity = MAX_READING - baseline;
+  maxVelocity = FSR_MAX_READING - baseline;
   constrainedVelocity = constrain(velocity, jumpThreshold, maxVelocity);
   scaledVelocity =  map(constrainedVelocity, jumpThreshold, maxVelocity, 64, 127);
 
@@ -205,12 +206,12 @@ void FSR::sample() {
 int FSR::updateThreshold(int (&baselineBuff)[BASELINE_BUFFER_SIZE], int oldBaseline, int oldThreshold) {
 
   int varianceFromBaseline = varianceFromTarget(baselineBuff, BASELINE_BUFFER_SIZE, oldBaseline);
-  int newThreshold = constrain(varianceFromBaseline, MIN_THRESHOLD, MAX_THRESHOLD);
+  int newThreshold = constrain(varianceFromBaseline, FSR_MIN_THRESHOLD, FSR_MAX_THRESHOLD);
 
   int deltaThreshold = newThreshold - oldThreshold;
   if (deltaThreshold < 0) {
     //split the difference to slow down threshold becoming more sensitive
-    newThreshold = constrain(oldThreshold + ((deltaThreshold) / 4), MIN_THRESHOLD, MAX_THRESHOLD);
+    newThreshold = constrain(oldThreshold + ((deltaThreshold) / 4), FSR_MIN_THRESHOLD, FSR_MAX_THRESHOLD);
   }
 
   return newThreshold;
@@ -286,7 +287,7 @@ void FSR::sustainReset() {
 
 void FSR::baselineReset() {
   jumpThreshold = updateThreshold(baselineBuffer, baseline, jumpThreshold);
-  int maxBaseline = MAX_READING - jumpThreshold - MIN_JUMPING_RANGE;
+  int maxBaseline = FSR_MAX_READING - jumpThreshold - FSR_MIN_JUMPING_RANGE;
   baseline = min(bufferAverage(baselineBuffer, BASELINE_BUFFER_SIZE), maxBaseline);
 
   //reset counter
@@ -347,6 +348,7 @@ void fsrSetup(FSR** FSR_GRID, const int* sensor_pins, const int* notes) {
   for (int i = 0; i < NUM_FSR_SENSORS; i++) {
     FSR_GRID[i] = new FSR(sensor_pins[i], notes[i], i);
     FSR_GRID[i]->calibrate();
+    delay(10);
   }
 }
 
@@ -358,6 +360,7 @@ void fsrRead(FSR** FSR_GRID){
 
 void fsrRead(FSR** FSR_GRID, int sensor){
     FSR_GRID[sensor]->readResistance();
+    delay(1);
 }
 
 void fsrPrintReadActive(FSR** FSR_GRID){

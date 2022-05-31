@@ -23,6 +23,29 @@ const static int NUM_FSR_SENSORS = 8;
 const int FSR_SENSOR_PINS[] = {25, 26, 27, 39, 15, 16, 17, 18};
 const int FSR_NOTES[] = {74, 76, 81, 83, 85, 86, 79, 78};
 
+// FSR thresholds
+const int FSR_MAX_READING = 1023;
+const int FSR_MIN_THRESHOLD = 150;
+const int FSR_MAX_THRESHOLD = 150;
+const int FSR_MIN_JUMPING_RANGE = 80;
+
+// FSR CONST
+static const int BASELINE_BUFFER_SIZE = 1000;
+unsigned const long NOTE_VELOCITY_DELAY = 2 * MILLISECOND;
+unsigned const long NOTE_ON_DELAY = 50 * MILLISECOND;
+unsigned const long NOTE_OFF_DELAY = 50 * MILLISECOND;
+unsigned const long SUSTAIN_DELAY = 100 * MILLISECOND;
+unsigned const long BASELINE_SAMPLE_DELAY = 0.5 * MILLISECOND;
+unsigned const long BASELINE_BLOWBACK_DELAY = 40 * MILLISECOND;
+const int RETRO_JUMP_BLOWBACK_SAMPLES = (0.5 * MILLISECOND) / BASELINE_SAMPLE_DELAY;
+const int MAX_CONSECUTIVE_SUSTAINS = (10 * SECOND) / SUSTAIN_DELAY;
+
+const int FSR_SENSOR_PINS_DROITE[] = {25, 26, 27, 39};
+const int FSR_NOTES_DROITE[] = {74, 76, 81, 83};
+
+const int FSR_SENSOR_PINS_GAUCHE[] = {15, 16, 17, 18};
+const int FSR_NOTES_GAUCHE[] = {85, 86, 79, 78};
+
 // PIEZO VALUES
 const static int NUM_PIEZO_SENSORS = 4;
 const int PIEZO_SENSOR_PINS[] = {24, 40, 41, 19};
