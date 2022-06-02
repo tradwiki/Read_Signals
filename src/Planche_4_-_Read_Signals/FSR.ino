@@ -4,7 +4,7 @@ FSR::FSR() {
 
 }
 
-FSR::FSR(const int pin, const int note, const int index) { 
+FSR::FSR(const int pin, const int note, const int index) {
   PIN = pin;
   NOTE = note;
   INDEX = index;
@@ -13,7 +13,6 @@ FSR::FSR(const int pin, const int note, const int index) {
   baseline = 0;
   jumpThreshold = 0;
   tapsToIgnore = 0;
-  scaledVelocity = 0;
   state = "IDLE";
 };
 
@@ -34,18 +33,25 @@ String FSR::getState() {
   return state;
 }
 
-int FSR::getSensorReading(){
+int FSR::getSensorReading() {
   return sensorReading;
 }
 
-int FSR::getScaledVelocity(){
-  return scaledVelocity;
-}
+///
 
 void FSR::calibrate() {
+  Serial.print("Calibration du FSR ");
+  Serial.print(INDEX);
+  Serial.print(" NOTE ");
+  Serial.print(NOTE);
+  Serial.print(".");
+  delay(500);
+  Serial.print(".");
+  delay(500);
+  Serial.print(".");
   baseline = analogRead(PIN);
   jumpThreshold = (FSR_MIN_THRESHOLD + FSR_MAX_THRESHOLD) / 2;
-  delay(5);
+  Serial.println("terminé!");
 }
 
 void FSR::readResistance() {
@@ -54,7 +60,7 @@ void FSR::readResistance() {
 
   //make state idle by default
   state = "IDLE";
-  
+
   if (distanceAboveBaseline >= jumpThreshold) {
 
     if (sustainCount == 0) {
@@ -140,6 +146,7 @@ void FSR::readResistance() {
       }
     }
   }
+//  delay(10);
 }
 
 
@@ -149,10 +156,6 @@ void FSR::jumping() {
 
 
 void FSR::rising() {
-  maxVelocity = FSR_MAX_READING - baseline;
-  constrainedVelocity = constrain(velocity, jumpThreshold, maxVelocity);
-  scaledVelocity =  map(constrainedVelocity, jumpThreshold, maxVelocity, 64, 127);
-
   lastRisingTime = micros();
   toWaitBeforeFalling = NOTE_ON_DELAY;
 
@@ -233,6 +236,9 @@ void FSR::sendMidiSignal() {
   if (WITH_MIDI) {
     if (state == "RISING") {
       Serial.println("RISING");
+      int maxVelocity = FSR_MAX_READING - baseline;
+      int constrainedVelocity = constrain(velocity, jumpThreshold, maxVelocity);
+      int scaledVelocity =  map(constrainedVelocity, jumpThreshold, maxVelocity, 1, 127);
       usbMIDI.sendNoteOn(NOTE, scaledVelocity, MIDI_CHANNEL);
 
       if (IS_CLOCKING_PAD) {
@@ -256,22 +262,20 @@ void FSR::sendMidiSignal() {
   }
 }
 
-void FSR::printRead(){
-    Serial.print(NOTE);
-    Serial.print(" ");
-    Serial.print(state);
-    Serial.print(" : ");
-    Serial.print(jumpThreshold);
-    Serial.print(" : ");
-    Serial.print(sensorReading);
-    Serial.print(" , ");
-    Serial.print(velocity);
-    Serial.print(",");
-    Serial.println(scaledVelocity);
+void FSR::printRead() {
+  Serial.print(NOTE);
+  Serial.print(" ");
+  Serial.print(state);
+  Serial.print(" : ");
+  Serial.print(jumpThreshold);
+  Serial.print(" : ");
+  Serial.print(sensorReading);
+  Serial.print(" : ");
+  Serial.println(velocity);
 }
 
-void FSR::printReadActive(){
-  if (state == "RISING" || state == "SUSTAINED"){
+void FSR::printReadActive() {
+  if (state == "RISING" || state == "SUSTAINED") {
     printRead();
   }
 }
@@ -304,7 +308,8 @@ int FSR::varianceFromTarget(int * a, int aSize, int target) {
       sum += toAdd;
     }
     else {
-      Serial.println("WARNING: Exceeded ULONG_MAX while running varianceFromTarget(). Check your parameters to ensure buffers aren't too large.");
+      Serial.print(NOTE);
+      Serial.println(" WARNING: Exceeded ULONG_MAX while running varianceFromTarget(). Check your parameters to ensure buffers aren't too large.");
       delay(1000);
       break;
     }
@@ -336,7 +341,8 @@ int FSR::bufferAverage(int * a, int aSize) {
       sum += a[i];
     }
     else {
-      Serial.println("WARNING: Exceeded ULONG_MAX while running bufferAverage(). Check your parameters to ensure buffers aren't too large.");
+      Serial.print(NOTE);
+      Serial.println(" WARNING: Exceeded ULONG_MAX while running bufferAverage(). Check your parameters to ensure buffers aren't too large.");
       delay(1000);
       break;
     }
@@ -344,42 +350,36 @@ int FSR::bufferAverage(int * a, int aSize) {
   return (int) (sum / i);
 }
 
-void fsrSetup(FSR** FSR_GRID, const int* sensor_pins, const int* notes) {
+
+
+void fsrRead(FSR** FSR_GRID) {
   for (int i = 0; i < NUM_FSR_SENSORS; i++) {
-    FSR_GRID[i] = new FSR(sensor_pins[i], notes[i], i);
-    FSR_GRID[i]->calibrate();
-    delay(10);
-  }
-}
-
-void fsrRead(FSR** FSR_GRID){
-    for (int i = 0; i < NUM_FSR_SENSORS; i++) {
     FSR_GRID[i]->readResistance();
+    delay(5);
   }
 }
 
-void fsrRead(FSR** FSR_GRID, int sensor){
-    FSR_GRID[sensor]->readResistance();
-    delay(1);
+void fsrRead(FSR** FSR_GRID, int sensor) {
+  FSR_GRID[sensor]->readResistance();
 }
 
-void fsrPrintReadActive(FSR** FSR_GRID){
+void fsrPrintReadActive(FSR** FSR_GRID) {
   for (int i = 0; i < NUM_FSR_SENSORS; i++) {
     FSR_GRID[i]->printReadActive();
   }
 }
 
-void fsrPrintReadActive(FSR** FSR_GRID, int sensor){
-    FSR_GRID[sensor]->printReadActive();
+void fsrPrintReadActive(FSR** FSR_GRID, int sensor) {
+  FSR_GRID[sensor]->printReadActive();
 }
 
 
-void sendFSRMidi(FSR** FSR_GRID){
-  for (int sensor = 0; sensor < NUM_FSR_SENSORS; sensor++){
+void sendFSRMidi(FSR** FSR_GRID) {
+  for (int sensor = 0; sensor < NUM_FSR_SENSORS; sensor++) {
     FSR_GRID[sensor]->sendMidiSignal();
   }
 }
 
-void sendFSRMidi(FSR** FSR_GRID, int sensor){
+void sendFSRMidi(FSR** FSR_GRID, int sensor) {
   FSR_GRID[sensor]->sendMidiSignal();
 }

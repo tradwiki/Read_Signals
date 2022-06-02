@@ -20,9 +20,6 @@ class FSR {
     int sensorReading;
     int distanceAboveBaseline;
     int velocity;
-    int scaledVelocity;
-    int maxVelocity;
-    int constrainedVelocity;
     bool justJumped;
     int baselineBuffer[BASELINE_BUFFER_SIZE];
     int baselineBufferIndex;

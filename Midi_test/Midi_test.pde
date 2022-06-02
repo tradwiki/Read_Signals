@@ -16,7 +16,9 @@ void setup() {
 }
 
 void draw() {
-  ind.drawGrid();
+  background(0);
+  ind.drawGrid(700, 125);
+  ind.drawHeatMap(100, 125);
   ind.show();
   //delay(2000);
 }
