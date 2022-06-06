@@ -12,7 +12,7 @@ class Piezo {
     int sensorRead;
     int prevSensorRead;
     int timer;
-    int threshold = 20;
+    int threshold = 10;
     String state;
     
   public:
