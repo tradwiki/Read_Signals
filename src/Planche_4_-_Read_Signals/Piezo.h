@@ -12,7 +12,7 @@ class Piezo {
     int sensorRead;
     int prevSensorRead;
     int timer;
-    int threshold = 10;
+    int threshold = 5;
     String state;
     
   public:
@@ -33,6 +33,8 @@ class Piezo {
 void piezoSetup(Piezo** PIEZO_GRID, const int* sensor_pins, const int* notes);
 void piezoRead(Piezo** PIEZO_GRID);
 void piezoRead(Piezo** PIEZO_GRID, int sensor);
+void piezoPrintRead(Piezo** PIEZO_GRID);
+void piezoPrintRead(Piezo** PIEZO_GRID, int sensor);
 void piezoPrintReadActive(Piezo** PIEZO_GRID);
 void piezoPrintReadActive(Piezo** PIEZO_GRID, int sensor);
 

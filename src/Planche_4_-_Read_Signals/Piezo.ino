@@ -3,7 +3,6 @@
 //https://forum.arduino.cc/t/piezo-sensor-burst-reading-when-hit-please-help/214884/2
 
 Piezo::Piezo() {
-
 }
 
 Piezo::Piezo(const int pin, const int note, const int index) {
@@ -11,9 +10,9 @@ Piezo::Piezo(const int pin, const int note, const int index) {
   NOTE = note;
   INDEX = index;
   WITH_MIDI = true;
-//  default to rogue to get rid of risidual charge
-  state = "ROGUE";
-  threshold = 100;
+  //  default to rogue to get rid of risidual charge
+  state = "IDLE";
+//  threshold = 5;
 };
 
 Piezo& Piezo::operator=(const Piezo&)
@@ -34,20 +33,35 @@ int Piezo::getRead() {
   return sensorRead;
 }
 
+//void Piezo::readResistance(){
+//  prevSensorRead = sensorRead;
+//  sensorRead = analogRead(PIN);
+//
+//  if (sensorRead > threshold){
+//    sendMidiSignal();
+//    state = "ACTIVE";
+//  }
+//
+//  if (sensorRead <= threshold && state == "ACTIVE"){
+//    sendMidiSignal(); 
+//    state = "IDLE";
+//  }
+//}
+//
 void Piezo::readResistance() {
   prevSensorRead = sensorRead;
   sensorRead = analogRead(PIN);
 
   if (sensorRead > threshold && state != "ROGUE") {
 
-    if (state == "ACTIVE"){
+    if (state == "ACTIVE") {
       state = "SUSTAINED";
     }
 
     else {
       state = "ACTIVE";
     }
-    
+
     sendMidiSignal();
     timer++;
     // cut out the signal if there is a risidual charge
@@ -58,7 +72,7 @@ void Piezo::readResistance() {
     }
   }
 
-  if (sensorRead < threshold && state != "IDLE") {
+  else  if (sensorRead < threshold && state != "IDLE") {
     state = "IDLE";
     timer = 0;
     sendMidiSignal();
@@ -67,9 +81,10 @@ void Piezo::readResistance() {
 
 void Piezo::sendMidiSignal() {
 
-  
-  int mappedRead =  map(sensorRead, 0,  1023, 0, 127);
-  
+
+//  int mappedRead =  map(sensorRead, 0,  1023, 0, 127);
+  int mappedRead = sensorRead;
+
   if (PIEZO_DEBUG) {
     printRead();
   }
@@ -121,6 +136,16 @@ void piezoRead(Piezo** PIEZO_GRID) {
 
 void piezoRead(Piezo** PIEZO_GRID, int sensor) {
   PIEZO_GRID[sensor]->readResistance();
+}
+
+void piezoPrintRead(Piezo** PIEZO_GRID) {
+  for (int i = 0; i < NUM_PIEZO_SENSORS; i++) {
+    PIEZO_GRID[i]->printRead();
+  }
+}
+
+void piezoPrintRead(Piezo** PIEZO_GRID, int sensor) {
+  PIEZO_GRID[sensor]->printRead();
 }
 
 void piezoPrintReadActive(Piezo** PIEZO_GRID) {

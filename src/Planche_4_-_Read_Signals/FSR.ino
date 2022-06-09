@@ -45,9 +45,9 @@ void FSR::calibrate() {
   Serial.print(" NOTE ");
   Serial.print(NOTE);
   Serial.print(".");
-  delay(500);
+  delay(200);
   Serial.print(".");
-  delay(500);
+  delay(200);
   Serial.print(".");
   baseline = analogRead(PIN);
   jumpThreshold = (FSR_MIN_THRESHOLD + FSR_MAX_THRESHOLD) / 2;
@@ -146,7 +146,6 @@ void FSR::readResistance() {
       }
     }
   }
-//  delay(10);
 }
 
 
@@ -350,12 +349,16 @@ int FSR::bufferAverage(int * a, int aSize) {
   return (int) (sum / i);
 }
 
-
+void fsrSetup(FSR** FSR_GRID, const int* sensor_pins, const int* notes) {
+  for (int i = 0; i < NUM_FSR_SENSORS; i++) {
+    FSR_GRID[i] = new FSR(sensor_pins[i], notes[i], i);
+    FSR_GRID[i]->calibrate();
+  }
+}
 
 void fsrRead(FSR** FSR_GRID) {
   for (int i = 0; i < NUM_FSR_SENSORS; i++) {
     FSR_GRID[i]->readResistance();
-    delay(5);
   }
 }
 

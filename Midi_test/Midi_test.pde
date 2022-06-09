@@ -5,8 +5,11 @@ import javax.sound.midi.ShortMessage;
 
 MidiBus myBus; // The MidiBus
 indicator ind;
+
+//GLOBAL VARIABLES
+
 void setup() {
-  size(1000, 400);
+  size(1080, 800);
   background(0);
 
   MidiBus.list(); // List all available Midi devices on STDOUT. This will show each device's index and name.
@@ -17,8 +20,8 @@ void setup() {
 
 void draw() {
   background(0);
-  ind.drawGrid(700, 125);
-  ind.drawHeatMap(100, 125);
+  //ind.drawGrid(700, 125);
+  //ind.drawHeatMap(100, 125);
   ind.show();
   //delay(2000);
 }
