@@ -49,7 +49,8 @@ class indicator {
   color c;
   Pad[] piezo;
   Pad[] fsr;
-
+  Queue log;
+  
   indicator (int x, int y) {
     this.x = x;
     this.y = y;
@@ -58,6 +59,7 @@ class indicator {
     this.centerY = y + 150;
     this.c = color(255, 0, 0);
     this.square = 400;
+    this.stack = new Stack();
     this.fsr = new Pad[8];
     this.piezo = new Pad[4];
     for (int i = 0; i < 4; i++) {
