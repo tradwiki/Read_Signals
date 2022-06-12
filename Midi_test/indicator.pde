@@ -50,7 +50,7 @@ class indicator {
   Pad[] piezo;
   Pad[] fsr;
   Queue log;
-  
+
   indicator (int x, int y) {
     this.x = x;
     this.y = y;
@@ -59,7 +59,7 @@ class indicator {
     this.centerY = y + 150;
     this.c = color(255, 0, 0);
     this.square = 400;
-    this.stack = new Stack();
+    this.log = new Queue();
     this.fsr = new Pad[8];
     this.piezo = new Pad[4];
     for (int i = 0; i < 4; i++) {
@@ -318,6 +318,7 @@ class indicator {
 
   void mainMap(int centerX, int centerY) {
     rectMode(CENTER);
+    textAlign(CENTER);
     strokeWeight(2);
     stroke(255);
     noFill();
@@ -336,14 +337,47 @@ class indicator {
       noStroke();
       rect(centerX - 100, centerY, 100, 100);
       fill(0);
-      text("centre gauche", centerX - 140, centerY);
+      text("Pied plein gauche", centerX - 100, centerY);
     }
 
     if (piezo[1].val > 0 && piezo[3].val > 0) {
       fill(255, 255, 0);
       noStroke();
       rect(centerX + 100, centerY, 100, 100);
-      text("centre droit", centerX + 80, centerY);
+      fill(0);
+      text("Pied plein droit", centerX + 100, centerY);
+    }
+
+    if (fsr[0].val > 0 && fsr[1].val > 0) {
+      fill(255, 255, 0);
+      noStroke();
+      rect(centerX - 100, centerY - 100, 100, 100);
+      fill(0);
+      text("Public Gauche", centerX - 100, centerY - 100);
+    }
+
+    if (fsr[2].val > 0 && fsr[3].val > 0) {
+      fill(255, 255, 0);
+      noStroke();
+      rect(centerX + 100, centerY - 100, 100, 100);
+      fill(0);
+      text("Public droit", centerX + 100, centerY - 100);
+    }
+
+    if (fsr[4].val > 0 && fsr[5].val > 0) {
+      fill(255, 255, 0);
+      noStroke();
+      rect(centerX - 100, centerY + 100, 100, 100);
+      fill(0);
+      text("Artiste Gauche", centerX - 100, centerY + 100);
+    }
+
+    if (fsr[6].val > 0 && fsr[7].val > 0) {
+      fill(255, 255, 0);
+      noStroke();
+      rect(centerX + 100, centerY + 100, 100, 100);
+      fill(0);
+      text("Artiste droit", centerX + 100, centerY + 100);
     }
   }
 }
