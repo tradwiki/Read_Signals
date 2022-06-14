@@ -6,8 +6,6 @@ import javax.sound.midi.ShortMessage;
 MidiBus myBus; // The MidiBus
 indicator ind;
 
-//GLOBAL VARIABLES
-
 void setup() {
   size(1080, 800);
   background(0);
