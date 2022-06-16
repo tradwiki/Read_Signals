@@ -12,7 +12,7 @@ Piezo::Piezo(const int pin, const int note, const int index) {
   WITH_MIDI = true;
   //  default to rogue to get rid of risidual charge
   state = "IDLE";
-//  threshold = 5;
+  threshold = 40;
 };
 
 Piezo& Piezo::operator=(const Piezo&)
@@ -33,21 +33,7 @@ int Piezo::getRead() {
   return sensorRead;
 }
 
-//void Piezo::readResistance(){
-//  prevSensorRead = sensorRead;
-//  sensorRead = analogRead(PIN);
-//
-//  if (sensorRead > threshold){
-//    sendMidiSignal();
-//    state = "ACTIVE";
-//  }
-//
-//  if (sensorRead <= threshold && state == "ACTIVE"){
-//    sendMidiSignal(); 
-//    state = "IDLE";
-//  }
-//}
-//
+
 void Piezo::readResistance() {
   prevSensorRead = sensorRead;
   sensorRead = analogRead(PIN);
@@ -74,20 +60,24 @@ void Piezo::readResistance() {
 
   else  if (sensorRead < threshold && state != "IDLE") {
     state = "IDLE";
+//    printRead();/
     timer = 0;
     sendMidiSignal();
   }
 }
 
+String Piezo::getState(){
+  return state;
+}
 void Piezo::sendMidiSignal() {
 
 
-//  int mappedRead =  map(sensorRead, 0,  1023, 0, 127);
-  int mappedRead = sensorRead;
+//  int mappedRead =  map(sensorRead, 0,///  1023, 0, 127);
+  int mappedRead = sensorRead;//
 
-  if (PIEZO_DEBUG) {
-    printRead();
-  }
+//  if (PIEZO_DEBUG) {
+//    printRead();
+//  }
 
   if (state == "ACTIVE") {
     usbMIDI.sendNoteOn(NOTE, mappedRead, MIDI_CHANNEL);
@@ -95,13 +85,13 @@ void Piezo::sendMidiSignal() {
   }
 
   else if (state == "SUSTAINED") {
-    Serial.println("SUSTAINED");
+//    Serial.println("SUSTAINED");/
     usbMIDI.sendPolyPressure(NOTE, mappedRead, MIDI_CHANNEL);
     usbMIDI.send_now();
   }
 
   if (state == "IDLE") {
-    Serial.println("FALLING");
+//    Serial.println("FALLING");/
     usbMIDI.sendNoteOff(NOTE, 0, MIDI_CHANNEL);
     usbMIDI.send_now();
   }

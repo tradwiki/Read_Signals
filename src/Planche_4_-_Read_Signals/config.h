@@ -43,8 +43,8 @@ const int MAX_CONSECUTIVE_SUSTAINS = (10 * SECOND) / SUSTAIN_DELAY;
 
 // PIEZO VALUES
 const static int NUM_PIEZO_SENSORS = 4;
-const int PIEZO_SENSOR_PINS[] = {24, 40, 41, 19};
-const int PIEZO_NOTES[] = {1, 2, 3, 4};
+const int PIEZO_SENSOR_PINS[] = {24, 19, 40, 41};
+const int PIEZO_NOTES[] = {100, 101, 102, 103};
 const int MAX_PIEZO_TIME = 10;
 
 // MOTOR VALUES

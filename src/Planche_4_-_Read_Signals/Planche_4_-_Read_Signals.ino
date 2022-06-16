@@ -19,8 +19,9 @@ void setup() {
 
 void loop() {
   piezoRead(PIEZO_GRID);
-  piezoPrintReadActive(PIEZO_GRID);
-
+  //  piezoPrintReadActive(PIEZO_GRID);
+  piezoPrintReadInRows(PIEZO_GRID);
+  //
   fsrRead(FSR_GRID);
   fsrPrintReadActive(FSR_GRID);
   sendFSRMidi(FSR_GRID);
