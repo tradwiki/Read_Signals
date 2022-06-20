@@ -2,6 +2,15 @@ import themidibus.*; //Import the library
 import javax.sound.midi.MidiMessage; //Import the MidiMessage classes http://java.sun.com/j2se/1.5.0/docs/api/javax/sound/midi/MidiMessage.html
 import javax.sound.midi.SysexMessage;
 import javax.sound.midi.ShortMessage;
+import oscP5.*;
+import netP5.*;
+
+
+int myBroadcastPort = 18032;
+NetAddress myRemoteLocation = new NetAddress("127.0.0.1", 18032);
+String myConnectPattern = "/server/connect";
+String myDisconnectPattern = "/server/disconnect";
+OscP5 oscP5;
 
 float heightOfCanvas = 2200;
 //TODO
@@ -10,7 +19,7 @@ MidiBus myBus; // The MidiBus
 Planche planche;
 ScrollRect scrollRect;
 
-int[] GRID_POS = {200, 200};
+int[] GRID_POS = {240, 200};
 int[] BAR_POS = {55, 500};
 int[] GRAPH_POS = {55, 700};
 int[] INTERPRET_POS = {200, 1500};
@@ -18,7 +27,7 @@ int GRAPH_WIDTH = 1100;
 int GRAPH_HEIGHT = 50;
 
 //color BG_COLOR = color(108, 150, 184);
-color BG_COLOR = color(0, 123 , 0);
+color BG_COLOR = color(100, 0, 200);
 
 //int GRAPH_WIDTH = 1150;
 //int GRAPH_HEIGHT = 60;
@@ -33,15 +42,18 @@ void setup() {
   background(0);
 
   MidiBus.list(); // List all available Midi devices on STDOUT. This will show each device's index and name.
-  myBus = new MidiBus(this, 1, 0); // Create a new MidiBus object
+  myBus = new MidiBus(this, 1, -1); // Create a new MidiBus object
 
   planche = new Planche();
   scrollRect = new ScrollRect();
 
+  oscP5 = new OscP5(this, 12000);
   background(BG_COLOR);
+  frameRate(30);
 }
 
 void draw() {
+  noCursor();
   background(BG_COLOR);
   scrollRect.display();
   scrollRect.update();
@@ -59,9 +71,9 @@ void draw() {
   stroke(0, 255, 0);
   noFill();
   strokeWeight(2);
-  rect(0, 0, 400, 400);
-  rect(0, 400, 800, 400);
-  rect(0, 800, 800, 400);
+  //rect(0, 0, 480, 400);
+  //rect(0, 400, 800, 400);
+  //rect(0, 800, 800, 400);
   //planche.showInterpret(INTERPRET_POS[0], INTERPRET_POS[1]);
 
   popMatrix();
@@ -81,6 +93,7 @@ void midiMessage(MidiMessage message) { // You can also use midiMessage(MidiMess
   }
   if (message.getMessage().length > 1) {
     planche.handleNote(message.getMessage()[1], message.getMessage()[2]);
+    sendOsc(message.getMessage()[1]);
   }
 }
 
@@ -116,4 +129,71 @@ void mousePressed() {
 
 void mouseReleased() {
   scrollRect.mouseReleasedRect();
+}
+
+void sendOsc(int note) {
+  OscMessage myMessage = new OscMessage("/satie/source/set");
+  myMessage.add("micro");
+  myMessage.add("aziDeg");
+  switch (note) {
+
+  case 74:
+    myMessage.add(float(45));
+    oscP5.send(myMessage, myRemoteLocation);
+    break;
+  case 76:
+    myMessage.add(float(45));
+    oscP5.send(myMessage, myRemoteLocation);
+    break;
+  //case 100:
+  //  myMessage.add(float(45));
+  //  oscP5.send(myMessage, myRemoteLocation);
+  //  break;
+
+  case 78:
+    myMessage.add(float(135));
+    oscP5.send(myMessage, myRemoteLocation);
+    break;
+
+  case 79:
+    myMessage.add(float(135));
+    oscP5.send(myMessage, myRemoteLocation);
+    break;
+
+  //case 101:
+  //  myMessage.add(float(135));
+  //  oscP5.send(myMessage, myRemoteLocation);
+  //  break;
+
+  case 81:
+    myMessage.add(float(-45));
+    oscP5.send(myMessage, myRemoteLocation);
+    break;
+
+  case 83:
+    myMessage.add(float(-45));
+    oscP5.send(myMessage, myRemoteLocation);
+    break;
+    
+  //case 102:
+  //  myMessage.add(float(-45));
+  //  oscP5.send(myMessage, myRemoteLocation);
+  //  break;
+
+  case 85:
+    myMessage.add(float(-135));
+    oscP5.send(myMessage, myRemoteLocation);
+    break;
+
+
+  case 86:
+    myMessage.add(float(-135));
+    oscP5.send(myMessage, myRemoteLocation);
+    break;
+
+  //case 103:
+  //  myMessage.add(float(-135));
+  //  oscP5.send(myMessage, myRemoteLocation);
+  //  break;
+  }
 }
