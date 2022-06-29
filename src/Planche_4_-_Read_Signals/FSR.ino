@@ -37,6 +37,18 @@ int FSR::getSensorReading() {
   return sensorReading;
 }
 
+int FSR::getBaseline() {
+  return baseline;
+}
+
+int FSR::getVelocity() {
+  return velocity;
+}
+
+int FSR::getScaledVelocity() {
+  return scaledVelocity;
+}
+
 ///
 
 void FSR::calibrate() {
@@ -237,7 +249,7 @@ void FSR::sendMidiSignal() {
       Serial.println("RISING");
       int maxVelocity = FSR_MAX_READING - baseline;
       int constrainedVelocity = constrain(velocity, jumpThreshold, maxVelocity);
-      int scaledVelocity =  map(constrainedVelocity, jumpThreshold, maxVelocity, 1, 127);
+      scaledVelocity =  map(constrainedVelocity, jumpThreshold, maxVelocity, 1, 127);
       usbMIDI.sendNoteOn(NOTE, scaledVelocity, MIDI_CHANNEL);
 
       if (IS_CLOCKING_PAD) {
@@ -277,6 +289,10 @@ void FSR::printReadActive() {
   if (state == "RISING" || state == "SUSTAINED") {
     printRead();
   }
+}
+
+bool FSR::isActive() {
+  return state == "RISING" || state == "SUSTAINED";
 }
 
 void FSR::sustainReset() {
@@ -349,6 +365,113 @@ int FSR::bufferAverage(int * a, int aSize) {
   return (int) (sum / i);
 }
 
+Pad::Pad(const int note, const int index, FSR* fsr0, FSR* fsr1) {
+  NOTE = note;
+  INDEX = index;
+  state = "IDLE";
+  sensors[0] = fsr0;
+  sensors[1] = fsr1;
+}
+
+int Pad::getNote() {
+  return NOTE;
+}
+
+String Pad::getState() {
+  return state;
+}
+
+//if FSR not specified, send average of both reads
+int Pad::getReading() {
+  return (read[0] + read[1]) / 2;
+}
+
+int Pad::getReading(int n) {
+  if (n < 2)  {
+    return read[n];
+  }
+
+  else {
+    return -1;
+  }
+}
+
+void Pad::sendMidiSignal() {
+  if (WITH_MIDI) {
+    if (state == "RISING") {
+      Serial.println("RISING");
+
+      int scaledMean = 0;
+      for (int i = 0; i < 2; i ++) {
+        scaledMean += sensors[i]->getScaledVelocity();
+      }
+      scaledMean = scaledMean / 2;
+      usbMIDI.sendNoteOn(NOTE, scaledMean, MIDI_CHANNEL);
+    }
+    else if (state == "SUSTAINED") {
+      Serial.println("SUSTAINED");
+      int scaledMean = 0;
+      for (int i = 0; i < 2; i ++) {
+        scaledMean += sensors[i]->getScaledVelocity();
+      }
+      usbMIDI.sendPolyPressure(NOTE, scaledMean, MIDI_CHANNEL);
+      usbMIDI.send_now();
+    }
+
+    else if (state == "FALLING") {
+      Serial.println("FALLING");
+      usbMIDI.sendNoteOff(NOTE, 0, MIDI_CHANNEL);
+      usbMIDI.send_now();
+    }
+  }
+}
+bool Pad::isActive() {
+  return (state == "RISING" || state == "SUSTAINED");
+}
+
+void Pad::getRead() {
+  if (state == "IDLE") {
+
+    if (sensors[0]->isActive() && sensors[1]->isActive()) {
+      state = "RISING";
+      sendMidiSignal();
+      Serial.print("Pad ");
+      Serial.print(INDEX);
+      Serial.print(": ");
+      Serial.println(state);
+    }
+
+  }
+
+  else if (sensors[0]->getState() == "WAITING" || sensors[1]->getState() == "WAITING") {
+    state = "WAITING";
+  }
+
+  else {
+    //    turn off if one of the sensors is off
+    if (sensors[0]->getState() == "FALLING" || sensors[1]->getState() == "FALLING") {
+      state = "FALLING";
+      sendMidiSignal();
+      state = "IDLE";
+    }
+
+    if (sensors[0]->getState() == "IDLE" || sensors[1]->getState() == "IDLE") {
+      state = "FALLING";
+      sendMidiSignal();
+      state = "IDLE";
+    }
+
+    else if (state == "RISING") {
+      state = "SUSTAINED";
+      sendMidiSignal();
+      Serial.print("Pad ");
+      Serial.print(INDEX);
+      Serial.print(": ");
+      Serial.println(state);
+    }
+  }
+}
+
 void fsrSetup(FSR** FSR_GRID, const int* sensor_pins, const int* notes) {
   for (int i = 0; i < NUM_FSR_SENSORS; i++) {
     FSR_GRID[i] = new FSR(sensor_pins[i], notes[i], i);
@@ -385,4 +508,45 @@ void sendFSRMidi(FSR** FSR_GRID) {
 
 void sendFSRMidi(FSR** FSR_GRID, int sensor) {
   FSR_GRID[sensor]->sendMidiSignal();
+}
+
+void padRead(Pad** PAD_GRID) {
+  for (int i = 0; i < NUM_PADS; i++) {
+    PAD_GRID[i]->getRead();
+  }
+}
+
+void fsrPrintReadInRows(FSR** FSR_GRID) {
+  bool doIPrint = false;
+  // print all values if one sensor is active
+  for (int i = 0; i < NUM_FSR_SENSORS; i++) {
+    if (FSR_GRID[i]->isActive()) {
+      doIPrint = true;
+      Serial.println(FSR_GRID[i]->getState());
+      break;
+    }
+  }
+
+  if (doIPrint) {
+    for (int i = 0; i < NUM_FSR_SENSORS; i++) {
+      Serial.print(FSR_GRID[i]->getNote());
+      Serial.print(" : ");
+      if (FSR_GRID[i]->getSensorReading() < 10) {
+        Serial.print("  ");
+      }
+
+      if (FSR_GRID[i]->getSensorReading() >= 10 && FSR_GRID[i]->getSensorReading() < 100) {
+        Serial.print(" ");
+      }
+      Serial.print(FSR_GRID[i]->getSensorReading());
+      Serial.print(" | ");
+    }
+    Serial.println();
+  }
+}
+
+void padSetup(Pad** PAD_GRID, FSR** FSR_GRID, const int* notes) {
+  for (int i = 0; i < NUM_PADS; i++) {
+    PAD_GRID[i] = new Pad(notes[i], i, FSR_GRID[i * 2], FSR_GRID[i * 2 + 1]);
+  }
 }

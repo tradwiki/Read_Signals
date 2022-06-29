@@ -145,11 +145,7 @@ void sendOsc(int note) {
     myMessage.add(float(45));
     oscP5.send(myMessage, myRemoteLocation);
     break;
-  //case 100:
-  //  myMessage.add(float(45));
-  //  oscP5.send(myMessage, myRemoteLocation);
-  //  break;
-
+    
   case 78:
     myMessage.add(float(135));
     oscP5.send(myMessage, myRemoteLocation);
@@ -159,11 +155,6 @@ void sendOsc(int note) {
     myMessage.add(float(135));
     oscP5.send(myMessage, myRemoteLocation);
     break;
-
-  //case 101:
-  //  myMessage.add(float(135));
-  //  oscP5.send(myMessage, myRemoteLocation);
-  //  break;
 
   case 81:
     myMessage.add(float(-45));
@@ -175,10 +166,6 @@ void sendOsc(int note) {
     oscP5.send(myMessage, myRemoteLocation);
     break;
     
-  //case 102:
-  //  myMessage.add(float(-45));
-  //  oscP5.send(myMessage, myRemoteLocation);
-  //  break;
 
   case 85:
     myMessage.add(float(-135));
@@ -191,9 +178,5 @@ void sendOsc(int note) {
     oscP5.send(myMessage, myRemoteLocation);
     break;
 
-  //case 103:
-  //  myMessage.add(float(-135));
-  //  oscP5.send(myMessage, myRemoteLocation);
-  //  break;
   }
 }

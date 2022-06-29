@@ -3,6 +3,12 @@ const bool DEBUG = false;
 const bool FSR_DEBUG = true;
 const bool PIEZO_DEBUG = true;
 const bool MIDI_RECEIVE_DEBUG = true;
+const bool WITH_MIDI = true;
+
+// Différents modes
+// 0 - Mode 4 notes fsr
+// 1 - Mode 8 notes fsr
+const int MIDI_MODE = 0;
 
 const int BAUD_RATE = 9600;
 const int MIDI_CHANNEL = 1;
@@ -20,8 +26,10 @@ const int LED_PIN = 13;
 // FSR VALUES
 const bool READ_RESISTANCE = true;
 const static int NUM_FSR_SENSORS = 8;
+const static int NUM_PADS = 4;
 const int FSR_SENSOR_PINS[] = {25, 26, 27, 39, 15, 16, 17, 18};
-const int FSR_NOTES[] = {74, 76, 81, 83, 85, 86, 79, 78};
+const int FSR_NOTES_0[] = {84, 80, 82, 85};
+const int FSR_NOTES_1[] = {74, 76, 81, 83, 85, 86, 79, 78};
 
 // FSR thresholds
 const int FSR_MAX_READING = 1023;
