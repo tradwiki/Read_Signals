@@ -70,9 +70,6 @@ void FSR::readResistance() {
   sensorReading = analogRead(PIN);
   distanceAboveBaseline = max(0, sensorReading - baseline);
 
-  //make state idle by default
-  state = "IDLE";
-
   if (distanceAboveBaseline >= jumpThreshold) {
 
     if (sustainCount == 0) {
@@ -92,9 +89,11 @@ void FSR::readResistance() {
         //        RISING
         //        rising(currentSensor, distanceAboveBaseline);
         velocity = distanceAboveBaseline;
+        int maxVelocity = FSR_MAX_READING - baseline;
+        int constrainedVelocity = constrain(velocity, jumpThreshold, maxVelocity);
+        scaledVelocity =  map(constrainedVelocity, jumpThreshold, maxVelocity, 1, 127);
         rising();
         state = "RISING";
-        //        sendMidiSignal();
       }
     }
     //SUSTAINING
@@ -110,6 +109,7 @@ void FSR::readResistance() {
       //SIGNAL
       else {
         velocity = distanceAboveBaseline;
+        scaledVelocity = map(constrain(velocity, jumpThreshold, 512), jumpThreshold, 512, 64, 127);
         state = "SUSTAINED";
         sustained();
       }
@@ -158,11 +158,6 @@ void FSR::readResistance() {
       }
     }
   }
-}
-
-
-void FSR::jumping() {
-
 }
 
 
@@ -246,10 +241,7 @@ void FSR::updateSustainCount() {
 void FSR::sendMidiSignal() {
   if (WITH_MIDI) {
     if (state == "RISING") {
-      Serial.println("RISING");
-      int maxVelocity = FSR_MAX_READING - baseline;
-      int constrainedVelocity = constrain(velocity, jumpThreshold, maxVelocity);
-      scaledVelocity =  map(constrainedVelocity, jumpThreshold, maxVelocity, 1, 127);
+      Serial.println(String(NOTE) + " SENDING MIDI SIGNAL : RISING " );
       usbMIDI.sendNoteOn(NOTE, scaledVelocity, MIDI_CHANNEL);
 
       if (IS_CLOCKING_PAD) {
@@ -258,13 +250,13 @@ void FSR::sendMidiSignal() {
       }
     }
     else if (state == "SUSTAINED") {
-      Serial.println("SUSTAINED");
-      usbMIDI.sendPolyPressure(NOTE, map(constrain(velocity, jumpThreshold, 512), jumpThreshold, 512, 64, 127), MIDI_CHANNEL);
+      Serial.println(String(NOTE) + " SENDING MIDI SIGNAL : SUSTAINED");
+      usbMIDI.sendPolyPressure(NOTE, scaledVelocity, MIDI_CHANNEL);
       usbMIDI.send_now();
     }
 
     else if (state == "FALLING") {
-      Serial.println("FALLING");
+      Serial.println(String(NOTE) + " SENDING MIDI SIGNAL : FALLING");
       usbMIDI.sendNoteOff(NOTE, 0, MIDI_CHANNEL);
       usbMIDI.send_now();
     }
@@ -382,47 +374,40 @@ String Pad::getState() {
 }
 
 //if FSR not specified, send average of both reads
-int Pad::getReading() {
-  return (read[0] + read[1]) / 2;
-}
-
-int Pad::getReading(int n) {
-  if (n < 2)  {
-    return read[n];
-  }
-
-  else {
-    return -1;
-  }
-}
 
 void Pad::sendMidiSignal() {
   if (WITH_MIDI) {
-    if (state == "RISING") {
-      Serial.println("RISING");
 
+    Serial.print("MIDI " + String(NOTE) + " ");
+
+    if (state == "RISING") {
+      Serial.print("NOTE ON ");
       int scaledMean = 0;
       for (int i = 0; i < 2; i ++) {
         scaledMean += sensors[i]->getScaledVelocity();
       }
       scaledMean = scaledMean / 2;
+      Serial.print(scaledMean);
       usbMIDI.sendNoteOn(NOTE, scaledMean, MIDI_CHANNEL);
     }
     else if (state == "SUSTAINED") {
-      Serial.println("SUSTAINED");
+      Serial.print("POLY MEASURE ");
       int scaledMean = 0;
       for (int i = 0; i < 2; i ++) {
         scaledMean += sensors[i]->getScaledVelocity();
       }
+      scaledMean = scaledMean / 2;
+      Serial.print(scaledMean);
       usbMIDI.sendPolyPressure(NOTE, scaledMean, MIDI_CHANNEL);
       usbMIDI.send_now();
     }
 
     else if (state == "FALLING") {
-      Serial.println("FALLING");
+      Serial.print("NOTE OFF 0");
       usbMIDI.sendNoteOff(NOTE, 0, MIDI_CHANNEL);
       usbMIDI.send_now();
     }
+    Serial.println();
   }
 }
 bool Pad::isActive() {
@@ -430,45 +415,21 @@ bool Pad::isActive() {
 }
 
 void Pad::getRead() {
-  if (state == "IDLE") {
-
-    if (sensors[0]->isActive() && sensors[1]->isActive()) {
-      state = "RISING";
+  //  // If both sensors have the same state set the state as the one of the FSR
+  if (sensors[0]->isActive() && sensors[1]->isActive()) {
+    sendMidiSignal();
+  }
+  if (sensors[0]->getState() == sensors[1]->getState() && state != sensors[0]->getState()) {
+    state = sensors[0]->getState();
+    if (state != "WAITING") {
       sendMidiSignal();
-      Serial.print("Pad ");
-      Serial.print(INDEX);
-      Serial.print(": ");
-      Serial.println(state);
     }
-
   }
 
-  else if (sensors[0]->getState() == "WAITING" || sensors[1]->getState() == "WAITING") {
-    state = "WAITING";
-  }
-
-  else {
-    //    turn off if one of the sensors is off
-    if (sensors[0]->getState() == "FALLING" || sensors[1]->getState() == "FALLING") {
-      state = "FALLING";
-      sendMidiSignal();
-      state = "IDLE";
-    }
-
-    if (sensors[0]->getState() == "IDLE" || sensors[1]->getState() == "IDLE") {
-      state = "FALLING";
-      sendMidiSignal();
-      state = "IDLE";
-    }
-
-    else if (state == "RISING") {
-      state = "SUSTAINED";
-      sendMidiSignal();
-      Serial.print("Pad ");
-      Serial.print(INDEX);
-      Serial.print(": ");
-      Serial.println(state);
-    }
+  // If one of the sensors is falling, the pad is falling
+  if (sensors[0]->getState() == "FALLING" || sensors[1]->getState() == "FALLING" && state != "FALLING") {
+    state = "FALLING";
+    sendMidiSignal();
   }
 }
 
@@ -522,7 +483,6 @@ void fsrPrintReadInRows(FSR** FSR_GRID) {
   for (int i = 0; i < NUM_FSR_SENSORS; i++) {
     if (FSR_GRID[i]->isActive()) {
       doIPrint = true;
-      Serial.println(FSR_GRID[i]->getState());
       break;
     }
   }

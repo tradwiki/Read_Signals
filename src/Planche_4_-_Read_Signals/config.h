@@ -8,7 +8,7 @@ const bool WITH_MIDI = true;
 // Différents modes
 // 0 - Mode 4 notes fsr
 // 1 - Mode 8 notes fsr
-const int MIDI_MODE = 0;
+const int MIDI_MODE = 1;
 
 const int BAUD_RATE = 9600;
 const int MIDI_CHANNEL = 1;

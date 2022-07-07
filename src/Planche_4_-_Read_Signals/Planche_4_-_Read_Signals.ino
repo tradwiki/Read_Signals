@@ -16,20 +16,18 @@ void setup() {
   fsrSetup(FSR_GRID, FSR_SENSOR_PINS, FSR_NOTES_1);
   piezoSetup(PIEZO_GRID, PIEZO_SENSOR_PINS, PIEZO_NOTES);
 
-  if (MIDI_MODE == 0){
+  if (MIDI_MODE == 0) {
     padSetup(PAD_GRID, FSR_GRID, FSR_NOTES_0);
   }
 }
 
 void loop() {
 
-  if (MIDI_MODE == 0){
+//  fsrPrintReadInRows(FSR_GRID);
+
+  if (MIDI_MODE == 0) {
     fsrRead(FSR_GRID);
     padRead(PAD_GRID);
-//    fsrPrintReadInRows(FSR_GRID);
-//    fsrRead(FSR_GRID);
-//    padSendMidi(FSR_GRID);
-//    padPrintRead(FSR_GRID);
   }
 
   else if (MIDI_MODE == 1) {
