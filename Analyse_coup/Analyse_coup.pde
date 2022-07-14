@@ -53,7 +53,7 @@ void setup() {
 }
 
 void draw() {
-  noCursor();
+  //noCursor();
   background(BG_COLOR);
   scrollRect.display();
   scrollRect.update();
