@@ -15,7 +15,10 @@ print("Time in seconds since the epoch:", time_sec)
 #
 #string = "hello world"
 #print(string[0:4] == "hell")
+#
+#while True:
+# print(round(time.time() -startTime, 3))
+# time.sleep(0.1)
 
-while True:
-  print(round(time.time() -startTime, 3))
-  time.sleep(0.1)
+print(len("ARTISTE GAUCHE"))
+print(len("ARTISTE DROITE"))

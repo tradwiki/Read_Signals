@@ -85,12 +85,12 @@ def midiToSensor(m_e):
 			if (m_e.data1 == sensor.note):
 				sensor.setValue(m_e.data2)
 
-def sendOSC(message):
+def filteredLogEntry(message):
 	Sensor.log[Sensor.logIndex] = message
 	Sensor.logTime[Sensor.logIndex] = Sensor.logIndex
 	Sensor.logIndex = (Sensor.logIndex + 1) % 100
 	
-	if (not (Sensor.filteredLog[Sensor.filteredLogIndex][0:14] == message[0:14])):
+	if (not (Sensor.filteredLog[Sensor.filteredLogIndex][0:2] == message[0:2])):
 		Sensor.filteredLogIndex = (Sensor.filteredLogIndex + 1) % 100
 		Sensor.filteredLog[Sensor.filteredLogIndex] = message
 		Sensor.filteredLogTime[Sensor.filteredLogIndex] = Sensor.logIndex
@@ -111,62 +111,97 @@ def sensorToLog():
 			PIEZO_STATE[i] = 1
 	
 			
+#	if(PIEZO_STATE[0] == 1 and PIEZO_STATE[2] == 1):
+#		sendOSC("PLEIN PIED GAUCHE")
+#	
+#	elif(PIEZO_STATE[1] == 1 and PIEZO_STATE[3] == 1):
+#		sendOSC("PLEIN PIED DROIT")
+			
 	if (FSR_STATE[0] == 1 and FSR_STATE[1] == 1):
-		sendOSC("PUBLIC GAUCHE")
-		client.send_message("/FSR/GAUCHE", [100]) 
+		filteredLogEntry("PG") 
+		client.send_message("/PG/Moyenne", [(PIEZO_SENSORS[0].read[Sensor.readIndex] + PIEZO_SENSORS[1].read[Sensor.readIndex] )/ 2])
+		client.send_message("/PG/G", [PIEZO_SENSORS[0].read[Sensor.readIndex]])
+		client.send_message("/PG/D", [PIEZO_SENSORS[1].read[Sensor.readIndex]])
+		
 	elif (FSR_STATE[0] == 1 and FSR_STATE[1] == 0):
-		sendOSC("PUBLIC GAUCHE GAUCHE")
+		filteredLogEntry("PG GAUCHE")
+		client.send_message("/PG/G", [PIEZO_SENSORS[0].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[0] == 0 and FSR_STATE[1] == 1):
-		sendOSC("PUBLIC GAUCHE DROITE")
+		filteredLogEntry("PG DROITE")
+		client.send_message("/PG/D", [PIEZO_SENSORS[1].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[2] == 1 and FSR_STATE[3] == 1):
-		sendOSC("PUBLIC DROITE")
+		filteredLogEntry("PD")
+		client.send_message("/PD/Moyenne", [(PIEZO_SENSORS[2].read[Sensor.readIndex] + PIEZO_SENSORS[3].read[Sensor.readIndex]) / 2])
+		client.send_message("/PD/G", [PIEZO_SENSORS[2].read[Sensor.readIndex]])
+		client.send_message("/PD/D", [PIEZO_SENSORS[3].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[2] == 1 and FSR_STATE[3] == 0):
-		sendOSC("PUBLIC DROITE GAUCHE")
+		filteredLogEntry("PD GAUCHE")
+		client.send_message("/PD/G", [PIEZO_SENSORS[2].read[Sensor.readIndex]])
 	
 	elif (FSR_STATE[2] == 0 and FSR_STATE[3] == 1):
-		sendOSC("PUBLIC DROITE DROITE")
+		filteredLogEntry("PD DROITE")
+		client.send_message("/PD/D", [PIEZO_SENSORS[3].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[4] == 1 and FSR_STATE[5] == 1):
-		sendOSC("ARTISTE GAUCHE")
+		filteredLogEntry("AG")
+		client.send_message("/AG/Moyenne", [([PIEZO_SENSORS[4].read[Sensor.readIndex] + PIEZO_SENSORS[5].read[Sensor.readIndex]) / 2])
+		client.send_message("/AG/G", [PIEZO_SENSORS[4].read[Sensor.readIndex])
+		client.send_message("/AG/D", [PIEZO_SENSORS[4].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[4] == 1 and FSR_STATE[5] == 0):
-		sendOSC("ARTISTE GAUCHE GAUCHE")
+		filteredLogEntry("AG GAUCHE")
+		client.send_message("/AG/G", [PIEZO_SENSORS[4].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[4] == 0 and FSR_STATE[5] == 1):
-		sendOSC("ARTISTE GAUCHE DROITE")
+		filteredLogEntry("AG DROITE")
+		client.send_message("/AG/D", [PIEZO_SENSORS[5].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[6] == 1 and FSR_STATE[7] == 1):
-		sendOSC("ARTISTE DROITE")
+		filteredLogEntry("AD")
+		client.send_message("/ADee c /Moyenne", [(PIEZO_SENSORS[4].read[Sensor.readIndex] + PIEZO_SENSORS[5].read[Sensor.readIndex]) / 2])
+		client.send_message("/AD/G", [PIEZO_SENSORS[4].read[Sensor.readIndex]])
+		client.send_message("/AD/D", [PIEZO_SENSORS[5].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[6] == 1 and FSR_STATE[7] == 0):
-		sendOSC("ARTISTE DROITE GAUCHE")
+		filteredLogEntry("AD GAUCHE")
+		client.send_message("/AD/G", [PIEZO_SENSORS[4].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[6] == 0 and FSR_STATE[7] == 1):
-		sendOSC("ARTISTE DROITE DROITE")
-
+		filteredLogEntry("AD DROITE")
+		client.send_message("/AD/D", [PIEZO_SENSORS[5].read[Sensor.readIndex]])
+		
 def analysePattern():
 	
-	#detecter un droite gauche talon
-	
-	if(alternanceDouble("ARTISTE GAUCHE", "ARTISTE DROITE") or alternanceDouble("ARTISTE DROITE", "ARTISTE GAUCHE")):
-		Sensor.currentPattern = "Alternance talon"
-	
-	elif(alternanceDouble("PUBLIC GAUCHE", "PUBLIC DROITE") or alternanceDouble("PUBLIC DROITE", "PUBLIC GAUCHE")):
-		Sensor.currentPattern = "Alternance pointe"
+	if (findPattern(4)):
+		Sensor.currentPattern = "4 temps"
 		
+	elif (findPattern(3)):
+		Sensor.currentPattern = "3 temps"
+		
+	elif (findPattern(2)):
+		Sensor.currentPattern = "2 temps"
+	
 	else:
-		Sensor.currentPattern = ""
+		Sensor.currentPattern = ""		
+
+def findPattern(n):
+	pattern = [""] * n
+	for i in range(n):
+		pattern[i] = Sensor.filteredLog[Sensor.filteredLogIndex - i]
 		
-def alternanceDouble(t1, t2):
+	for i in range(n * 3):
+		
+		if (not (Sensor.filteredLog[Sensor.filteredLogIndex - i][0:2] == Sensor.filteredLog[Sensor.filteredLogIndex - (i % n)][0:2])):
+			return False
 	
-	c1 = Sensor.filteredLog[Sensor.filteredLogIndex][0:14] == t1
-	c2 = Sensor.filteredLog[Sensor.filteredLogIndex - 1][0:14] == t2
-	c3 = Sensor.filteredLog[Sensor.filteredLogIndex - 2][0:14] == t1
-	c4 = Sensor.filteredLog[Sensor.filteredLogIndex - 3][0:14] == t2
-	c5 = Sensor.filteredLog[Sensor.filteredLogIndex - 4][0:14] == t1
-	c6 = Sensor.filteredLog[Sensor.filteredLogIndex - 5][0:14] == t2
+	if (n == 4):
+		if (Sensor.filteredLog[Sensor.filteredLogIndex] == Sensor.filteredLog[Sensor.filteredLogIndex - 2] and Sensor.filteredLog[Sensor.filteredLogIndex - 1] == Sensor.filteredLog[Sensor.filteredLogIndex - 3]):
+			return False
+	return True
+		
+def sendOsc(adress, data):
+	print(adress)
 	
-	return (c1 and c2 and c3 and c4 and c5 and c6)

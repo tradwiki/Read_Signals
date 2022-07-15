@@ -82,7 +82,7 @@ def input_main(device_id=None):
                 
                 elif (e.key == pg.K_SPACE):
                     for sensor in FSR_SENSORS:
-                        print(sensor.read)
+                        print(alternanceTriple())
                         
             if e.type in [pygame.midi.MIDIIN]:
                 print(e)
