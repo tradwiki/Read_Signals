@@ -75,8 +75,18 @@ def showLog():
     text = SMALL_FONT.render(str(Sensor.filteredLogTime[Sensor.filteredLogIndex - i]) + ": " + Sensor.filteredLog[Sensor.filteredLogIndex - i], True, WHITE)
     screen.blit(text, (30, 400 + 20 * i))
   
-  text = BIG_FONT.render("pattern: ", True, WHITE)
+  text = BIG_FONT.render("pattern type: ", True, WHITE)
   screen.blit(text, (250, 400))
-  text = BIG_FONT.render(Sensor.currentPattern, True, WHITE)
+  text = BIG_FONT.render(Sensor.currPatternType, True, WHITE)
   screen.blit(text, (250, 420))
+  
+  text = BIG_FONT.render("pattern: ", True, WHITE)
+  screen.blit(text, (250, 450))
+  text = BIG_FONT.render(Sensor.currPattern, True, WHITE)
+  screen.blit(text, (250, 470))
+  
+  text = BIG_FONT.render("tempo: ", True, WHITE)
+  screen.blit(text, (250, 500))
+  text = BIG_FONT.render(str(Sensor.currTempo), True, WHITE)
+  screen.blit(text, (250, 520))
   

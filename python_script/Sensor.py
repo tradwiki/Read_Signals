@@ -7,6 +7,7 @@ BUFFER_SIZE = 100
 
 NUM_FSR = 8
 NUM_PIEZO = 4
+NUM_PAD = 4
 FSR_NOTES = [74, 76, 78, 79, 81, 83, 85, 86]
 PIEZO_NOTES = [100, 101, 102, 103]
 
@@ -32,7 +33,11 @@ class  Sensor:
 	logIndex = 0
 	filteredLogIndex = 0
 	filteredLogTime = [0] * LOG_BUFFER_SIZE
-	currentPattern = ""
+	currPatternType = ""
+	currTempo = 0
+	currPattern = ""
+	prevPadState = [False] * NUM_PAD
+	
 	
 	def __init__(self,type, id, note, ref):
 		
@@ -59,7 +64,7 @@ class  Sensor:
 			self.state = not self.state
 			
 			if (not self.state):
-				sendOSC()
+				self.sendOSC()
 			print(str(id) + " is now ")
 			print(self.state)
 	
@@ -104,16 +109,17 @@ def midiToSensor(m_e):
 			if (m_e.data1 == sensor.note):
 				sensor.setValue(m_e.data2)
 
-def filteredLogEntry(message):
-	Sensor.log[Sensor.logIndex] = message
-	Sensor.logTime[Sensor.logIndex] = Sensor.logIndex
-	Sensor.logIndex = (Sensor.logIndex + 1) % 100
+def filteredLogEntry(message, n):
 	
-	if (not (Sensor.filteredLog[Sensor.filteredLogIndex][0:2] == message[0:2])):
+	if (not Sensor.prevPadState[n]):
 		Sensor.filteredLogIndex = (Sensor.filteredLogIndex + 1) % 100
 		Sensor.filteredLog[Sensor.filteredLogIndex] = message
 		Sensor.filteredLogTime[Sensor.filteredLogIndex] = Sensor.logIndex
 		
+	Sensor.log[Sensor.logIndex] = message
+	Sensor.logTime[Sensor.logIndex] = Sensor.logIndex
+	Sensor.logIndex = (Sensor.logIndex + 1) % 100
+	
 def sensorToLog():
 	
 	FSR_STATE = [0] * 8
@@ -128,6 +134,7 @@ def sensorToLog():
 		
 		if PIEZO_SENSORS[i].read[Sensor.readIndex] > 0:
 			PIEZO_STATE[i] = 1
+			PIEZO_SENSORS[i].sendOSC()
 	
 			
 #	if(PIEZO_STATE[0] == 1 and PIEZO_STATE[2] == 1):
@@ -137,66 +144,71 @@ def sensorToLog():
 #		sendOSC("PLEIN PIED DROIT")
 			
 	if (FSR_STATE[0] == 1 and FSR_STATE[1] == 1):
-		filteredLogEntry("PG") 
+		filteredLogEntry("PG", 0)
 		client.send_message("/FSR/PG", [FSR_SENSORS[0].read[Sensor.readIndex], FSR_SENSORS[1].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[0] == 1 and FSR_STATE[1] == 0):
-		filteredLogEntry("PG GAUCHE")
+		filteredLogEntry("PG GAUCHE", 0)
 		FSR_SENSORS[0].sendOSC()
 		
 	elif (FSR_STATE[0] == 0 and FSR_STATE[1] == 1):
-		filteredLogEntry("PG DROITE")
+		filteredLogEntry("PG DROITE", 0)
 		FSR_SENSORS[1].sendOSC()
 		
 	elif (FSR_STATE[2] == 1 and FSR_STATE[3] == 1):
-		filteredLogEntry("PD")
+		filteredLogEntry("PD", 1)
 		client.send_message("/FSR/PD",[FSR_SENSORS[2].read[Sensor.readIndex], FSR_SENSORS[3].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[2] == 1 and FSR_STATE[3] == 0):
-		filteredLogEntry("PD GAUCHE")
+		filteredLogEntry("PD GAUCHE", 1)
 		FSR_SENSORS[2].sendOSC()
 	
 	elif (FSR_STATE[2] == 0 and FSR_STATE[3] == 1):
-		filteredLogEntry("PD DROITE")
+		filteredLogEntry("PD DROITE", 1)
 		FSR_SENSORS[3].sendOSC()
 		
 	elif (FSR_STATE[4] == 1 and FSR_STATE[5] == 1):
-		filteredLogEntry("AG")
+		filteredLogEntry("AG", 2)
 		client.send_message("/FSR/AG",[FSR_SENSORS[4].read[Sensor.readIndex], FSR_SENSORS[5].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[4] == 1 and FSR_STATE[5] == 0):
-		filteredLogEntry("AG GAUCHE")
+		filteredLogEntry("AG GAUCHE", 2)
 		FSR_SENSORS[4].sendOSC()
 		
 	elif (FSR_STATE[4] == 0 and FSR_STATE[5] == 1):
-		filteredLogEntry("AG DROITE")
+		filteredLogEntry("AG DROITE", 2)
 		FSR_SENSORS[5].sendOSC()
 		
 	elif (FSR_STATE[6] == 1 and FSR_STATE[7] == 1):
-		filteredLogEntry("AD")
+		filteredLogEntry("AD", 3)
 		client.send_message("/FSR/AD",[FSR_SENSORS[6].read[Sensor.readIndex], FSR_SENSORS[7].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[6] == 1 and FSR_STATE[7] == 0):
-		filteredLogEntry("AD GAUCHE")
+		filteredLogEntry("AD GAUCHE", 3)
 		FSR_SENSORS[6].sendOSC()
 		
 	elif (FSR_STATE[6] == 0 and FSR_STATE[7] == 1):
-		filteredLogEntry("AD DROITE")
+		filteredLogEntry("AD DROITE", 3)
 		FSR_SENSORS[7].sendOSC()
+	
+	for i in range(NUM_PAD):
+		Sensor.prevPadState[i] = False
+		if (FSR_STATE[i * 2] or FSR_STATE[i * 2 + 1]):
+			Sensor.prevPadState[i] = True
 		
 def analysePattern():
 	
 	if (findPattern(4)):
-		Sensor.currentPattern = "4 temps"
+		Sensor.currPatternType = "4 temps"
 		
 	elif (findPattern(3)):
-		Sensor.currentPattern = "3 temps"
+		Sensor.currPatternType = "3 temps"
 		
 	elif (findPattern(2)):
-		Sensor.currentPattern = "2 temps"
+		Sensor.currPatternType = "2 temps"
 	
 	else:
-		Sensor.currentPattern = ""		
+		Sensor.currentPatternType = ""		
 
 def findPattern(n):
 	pattern = [""] * n
@@ -211,6 +223,16 @@ def findPattern(n):
 	if (n == 4):
 		if (Sensor.filteredLog[Sensor.filteredLogIndex] == Sensor.filteredLog[Sensor.filteredLogIndex - 2] and Sensor.filteredLog[Sensor.filteredLogIndex - 1] == Sensor.filteredLog[Sensor.filteredLogIndex - 3]):
 			return False
+	
+	Sensor.currPattern = ""
+	
+	for i in range(n):
+		Sensor.currPattern += Sensor.filteredLog[Sensor.filteredLogIndex - i][0:2]
+		Sensor.currPattern += "-"
+	Sensor.currPattern = Sensor.currPattern[0:(len(Sensor.currPattern) -1)]
+	
+	if ((Sensor.filteredLogTime[Sensor.filteredLogIndex] - Sensor.filteredLogTime[Sensor.filteredLogIndex - (n * 3)]) > 0):
+		Sensor.currTempo = (n * n  * 3 * 60) / (Sensor.filteredLogTime[Sensor.filteredLogIndex] - Sensor.filteredLogTime[Sensor.filteredLogIndex - (n * 3)])
 	return True
 		
 def sendOsc(adress, data):
