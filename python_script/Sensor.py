@@ -65,8 +65,8 @@ class  Sensor:
 			
 			if (not self.state):
 				self.sendOSC()
-			print(str(id) + " is now ")
-			print(self.state)
+#			print(str(id) + " is now ")
+#			print(self.state)
 	
 	
 #	maps currRead to a color value
@@ -80,10 +80,14 @@ class  Sensor:
 		return int(np.max(self.read) / 127 * val)
 	
 	def sendOSC(self):
-		if ((self.id % 2) == 0):
-			client.send_message(self.ref, [self.read[Sensor.readIndex], 0])
+		if (self.type == "FSR"):
+			if ((self.id % 2) == 0):
+				client.send_message(self.ref, [self.read[Sensor.readIndex], 0])
+			else:
+				client.send_message(self.ref, [0, self.read[Sensor.readIndex]])
+				
 		else:
-			client.send_message(self.ref, [0, self.read[Sensor.readIndex]])
+			client.send_message(self.ref, [self.read[Sensor.readIndex]])
 
 
 FSR_SENSORS = [Sensor("FSR", i, FSR_NOTES[i], FSR_REF[i]) for i in range(NUM_FSR)]
@@ -111,10 +115,10 @@ def midiToSensor(m_e):
 
 def filteredLogEntry(message, n):
 	
-	if (not Sensor.prevPadState[n]):
+	if (not Sensor.filteredLog[Sensor.filteredLogIndex][0:2] == message[0:2]):
 		Sensor.filteredLogIndex = (Sensor.filteredLogIndex + 1) % 100
 		Sensor.filteredLog[Sensor.filteredLogIndex] = message
-		Sensor.filteredLogTime[Sensor.filteredLogIndex] = Sensor.logIndex
+		Sensor.filteredLogTime[Sensor.filteredLogIndex] = round(time.time() - startTime, 2)
 		
 	Sensor.log[Sensor.logIndex] = message
 	Sensor.logTime[Sensor.logIndex] = Sensor.logIndex
@@ -136,12 +140,6 @@ def sensorToLog():
 			PIEZO_STATE[i] = 1
 			PIEZO_SENSORS[i].sendOSC()
 	
-			
-#	if(PIEZO_STATE[0] == 1 and PIEZO_STATE[2] == 1):
-#		sendOSC("PLEIN PIED GAUCHE")
-#	
-#	elif(PIEZO_STATE[1] == 1 and PIEZO_STATE[3] == 1):
-#		sendOSC("PLEIN PIED DROIT")
 			
 	if (FSR_STATE[0] == 1 and FSR_STATE[1] == 1):
 		filteredLogEntry("PG", 0)
@@ -198,14 +196,15 @@ def sensorToLog():
 		
 def analysePattern():
 	
-	if (findPattern(4)):
-		Sensor.currPatternType = "4 temps"
+	if (findPattern(2)):
+		Sensor.currPatternType = "2 temps"
 		
 	elif (findPattern(3)):
-		Sensor.currPatternType = "3 temps"
+		Sensor.currPatternType = "petit gallo"
+		client.send_message("/pattern", Sensor.currPattern)
 		
-	elif (findPattern(2)):
-		Sensor.currPatternType = "2 temps"
+	elif (findPattern(4)):
+		Sensor.currPatternType = "4 temps"
 	
 	else:
 		Sensor.currentPatternType = ""		
@@ -232,7 +231,14 @@ def findPattern(n):
 	Sensor.currPattern = Sensor.currPattern[0:(len(Sensor.currPattern) -1)]
 	
 	if ((Sensor.filteredLogTime[Sensor.filteredLogIndex] - Sensor.filteredLogTime[Sensor.filteredLogIndex - (n * 3)]) > 0):
-		Sensor.currTempo = (n * n  * 3 * 60) / (Sensor.filteredLogTime[Sensor.filteredLogIndex] - Sensor.filteredLogTime[Sensor.filteredLogIndex - (n * 3)])
+		Sensor.currTempo = int(( 3 * 60) / (Sensor.filteredLogTime[Sensor.filteredLogIndex] - Sensor.filteredLogTime[Sensor.filteredLogIndex - (n * 3)]))
+		client.send_message("/tempo", [Sensor.currTempo])
+	
+	
+	if (not Sensor.currTempo == 0 and (time.time() - Sensor.filteredLogTime[Sensor.filteredLogIndex] - startTime) > 2):
+		Sensor.currTempo = 0
+		client.send_message("/tempo", [(Sensor.currTempo)])
+		
 	return True
 		
 def sendOsc(adress, data):
