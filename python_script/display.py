@@ -82,11 +82,22 @@ def showLog():
   
   text = BIG_FONT.render("pattern: ", True, WHITE)
   screen.blit(text, (250, 450))
-  text = BIG_FONT.render(Sensor.currPattern, True, WHITE)
+  text = BIG_FONT.render(makeString(Sensor.currPattern), True, WHITE)
   screen.blit(text, (250, 470))
   
   text = BIG_FONT.render("tempo: ", True, WHITE)
   screen.blit(text, (250, 500))
   text = BIG_FONT.render(str(Sensor.currTempo), True, WHITE)
   screen.blit(text, (250, 520))
+
+def makeString(pattern):
+  s = ""
+  if (len(pattern) > 1):
+    for i in range(len(pattern) - 1):
+      s += pattern[i]
+      s += "-"
+    s += pattern[-1]
+  else:
+    s ="-"
+  return s
   

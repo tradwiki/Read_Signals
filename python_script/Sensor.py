@@ -20,7 +20,30 @@ PORT = 5005
 LOG_BUFFER_SIZE = 100
 
 client = SimpleUDPClient(IP, PORT)
+satie = SimpleUDPClient(IP, 18032)
 startTime = time.time()
+
+def samePattern(a, b):
+	
+#	dont bother comparing if these conditions
+	if (a == b):
+		return True
+	
+	if (len(a) != len(b)):
+		return False
+	
+	same = False
+
+	for shift in range(len(a)):
+		temp = True
+		for i in range(len(a)):
+			if not(b[i] == a[(i + shift) % len(a)]):
+				temp = False
+		if (temp):
+			same = temp
+			break
+		
+	return same
 
 class  Sensor:
 	
@@ -35,7 +58,7 @@ class  Sensor:
 	filteredLogTime = [0] * LOG_BUFFER_SIZE
 	currPatternType = ""
 	currTempo = 0
-	currPattern = ""
+	currPattern = []
 	prevPadState = [False] * NUM_PAD
 	
 	
@@ -143,50 +166,62 @@ def sensorToLog():
 			
 	if (FSR_STATE[0] == 1 and FSR_STATE[1] == 1):
 		filteredLogEntry("PG", 0)
+		satie.send_message("/satie/source/set", float(45))
 		client.send_message("/FSR/PG", [FSR_SENSORS[0].read[Sensor.readIndex], FSR_SENSORS[1].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[0] == 1 and FSR_STATE[1] == 0):
 		filteredLogEntry("PG GAUCHE", 0)
+		satie.send_message("/satie/source/set", float(45))
 		FSR_SENSORS[0].sendOSC()
 		
 	elif (FSR_STATE[0] == 0 and FSR_STATE[1] == 1):
 		filteredLogEntry("PG DROITE", 0)
+		satie.send_message("/satie/source/set", float(45))
 		FSR_SENSORS[1].sendOSC()
 		
 	elif (FSR_STATE[2] == 1 and FSR_STATE[3] == 1):
 		filteredLogEntry("PD", 1)
+		satie.send_message("/satie/source/set", float(135))
 		client.send_message("/FSR/PD",[FSR_SENSORS[2].read[Sensor.readIndex], FSR_SENSORS[3].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[2] == 1 and FSR_STATE[3] == 0):
 		filteredLogEntry("PD GAUCHE", 1)
+		satie.send_message("/satie/source/set", float(135))
 		FSR_SENSORS[2].sendOSC()
 	
 	elif (FSR_STATE[2] == 0 and FSR_STATE[3] == 1):
 		filteredLogEntry("PD DROITE", 1)
+		satie.send_message("/satie/source/set", float(135))
 		FSR_SENSORS[3].sendOSC()
 		
 	elif (FSR_STATE[4] == 1 and FSR_STATE[5] == 1):
 		filteredLogEntry("AG", 2)
+		satie.send_message("/satie/source/set", float(-45))
 		client.send_message("/FSR/AG",[FSR_SENSORS[4].read[Sensor.readIndex], FSR_SENSORS[5].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[4] == 1 and FSR_STATE[5] == 0):
 		filteredLogEntry("AG GAUCHE", 2)
+		satie.send_message("/satie/source/set", float(-45))
 		FSR_SENSORS[4].sendOSC()
 		
 	elif (FSR_STATE[4] == 0 and FSR_STATE[5] == 1):
 		filteredLogEntry("AG DROITE", 2)
+		satie.send_message("/satie/source/set", float(-45))
 		FSR_SENSORS[5].sendOSC()
 		
 	elif (FSR_STATE[6] == 1 and FSR_STATE[7] == 1):
 		filteredLogEntry("AD", 3)
+		satie.send_message("/satie/source/set", float(-135))
 		client.send_message("/FSR/AD",[FSR_SENSORS[6].read[Sensor.readIndex], FSR_SENSORS[7].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[6] == 1 and FSR_STATE[7] == 0):
 		filteredLogEntry("AD GAUCHE", 3)
+		satie.send_message("/satie/source/set", float(-135))
 		FSR_SENSORS[6].sendOSC()
 		
 	elif (FSR_STATE[6] == 0 and FSR_STATE[7] == 1):
 		filteredLogEntry("AD DROITE", 3)
+		satie.send_message("/satie/source/set", float(-135))
 		FSR_SENSORS[7].sendOSC()
 	
 	for i in range(NUM_PAD):
@@ -201,46 +236,51 @@ def analysePattern():
 		
 	elif (findPattern(3)):
 		Sensor.currPatternType = "petit gallo"
-		client.send_message("/pattern", Sensor.currPattern)
 		
 	elif (findPattern(4)):
 		Sensor.currPatternType = "4 temps"
 	
 	else:
-		Sensor.currentPatternType = ""		
+		client.send_message("/pattern/Off", [])
+		Sensor.currentPatternType = ""
 
 def findPattern(n):
-	pattern = [""] * n
-	for i in range(n):
-		pattern[i] = Sensor.filteredLog[Sensor.filteredLogIndex - i]
+	isPattern = False
+	if (not Sensor.filteredLog[Sensor.filteredLogIndex] == ""):
+		pattern = [""] * n
+		for i in range(n):
+			pattern[i] = Sensor.filteredLog[Sensor.filteredLogIndex - i]
+			
+		for i in range(n * 3):
+			
+			if (not (Sensor.filteredLog[Sensor.filteredLogIndex - i][0:2] == Sensor.filteredLog[Sensor.filteredLogIndex - (i % n)][0:2])):
+				return isPattern
 		
-	for i in range(n * 3):
+		if (n == 4):
+			if (Sensor.filteredLog[Sensor.filteredLogIndex] == Sensor.filteredLog[Sensor.filteredLogIndex - 2] and Sensor.filteredLog[Sensor.filteredLogIndex - 1] == Sensor.filteredLog[Sensor.filteredLogIndex - 3]):
+				return isPattern
 		
-		if (not (Sensor.filteredLog[Sensor.filteredLogIndex - i][0:2] == Sensor.filteredLog[Sensor.filteredLogIndex - (i % n)][0:2])):
-			return False
-	
-	if (n == 4):
-		if (Sensor.filteredLog[Sensor.filteredLogIndex] == Sensor.filteredLog[Sensor.filteredLogIndex - 2] and Sensor.filteredLog[Sensor.filteredLogIndex - 1] == Sensor.filteredLog[Sensor.filteredLogIndex - 3]):
-			return False
-	
-	Sensor.currPattern = ""
-	
-	for i in range(n):
-		Sensor.currPattern += Sensor.filteredLog[Sensor.filteredLogIndex - i][0:2]
-		Sensor.currPattern += "-"
-	Sensor.currPattern = Sensor.currPattern[0:(len(Sensor.currPattern) -1)]
-	
-	if ((Sensor.filteredLogTime[Sensor.filteredLogIndex] - Sensor.filteredLogTime[Sensor.filteredLogIndex - (n * 3)]) > 0):
-		Sensor.currTempo = int(( 3 * 60) / (Sensor.filteredLogTime[Sensor.filteredLogIndex] - Sensor.filteredLogTime[Sensor.filteredLogIndex - (n * 3)]))
-		client.send_message("/tempo", [Sensor.currTempo])
-	
-	
-	if (not Sensor.currTempo == 0 and (time.time() - Sensor.filteredLogTime[Sensor.filteredLogIndex] - startTime) > 2):
-		Sensor.currTempo = 0
-		client.send_message("/tempo", [(Sensor.currTempo)])
 		
-	return True
+		tempPattern = [""] * n
 		
-def sendOsc(adress, data):
-	print(adress)
-	
+		for i in range(n):
+			tempPattern[i] = Sensor.filteredLog[Sensor.filteredLogIndex - i][0:2]
+		
+		if (not samePattern(tempPattern, Sensor.currPattern)):
+			Sensor.currPattern = tempPattern
+#			you only need the last note for now
+			client.send_message("/pattern/On", ["/FSR/" + Sensor.currPattern[-1]])
+			
+		if ((Sensor.filteredLogTime[Sensor.filteredLogIndex] - Sensor.filteredLogTime[Sensor.filteredLogIndex - (n * 3)]) > 0):
+			Sensor.currTempo = int(( 3 * 60) / (Sensor.filteredLogTime[Sensor.filteredLogIndex] - Sensor.filteredLogTime[Sensor.filteredLogIndex - (n * 3)]))
+			client.send_message("/tempo", [Sensor.currTempo])
+		
+		
+		if (not Sensor.currTempo == 0 and (time.time() - Sensor.filteredLogTime[Sensor.filteredLogIndex] - startTime) > 2):
+			Sensor.currTempo = 0
+			Sensor.currPattern = [""]
+			Sensor.currPatternType = ""
+			client.send_message("/tempo", [(Sensor.currTempo)])
+			client.send_message("/pattern/Off", [])
+			
+		return True

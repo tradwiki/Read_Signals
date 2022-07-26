@@ -104,7 +104,7 @@ def input_main(device_id=None):
         screen.fill((0, 0, 0))
         drawBoard(20, 20)
         drawGraph(380, 20)
-        sensorToLog()
+        sensorToLog() 
         showLog()
         analysePattern()
         pg.display.update()
