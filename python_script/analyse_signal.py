@@ -115,6 +115,6 @@ def input_main(device_id=None):
     del midi_input
     pygame.midi.quit()
     
-input_main(1)
+input_main(3)
 
 

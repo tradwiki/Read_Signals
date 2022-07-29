@@ -14,13 +14,15 @@ PIEZO_NOTES = [100, 101, 102, 103]
 FSR_REF = ["/FSR/PG", "/FSR/PG", "/FSR/PD", "/FSR/PD", "/FSR/AG", "/FSR/AG", "/FSR/AD", "/FSR/AD"]
 PIEZO_REF = ["/PIEZO/PG", "/PIEZO/PD", "/PIEZO/AG", "/PIEZO/AD"]
 
-IP = "127.0.0.1"
+IP_PROCESSING = "10.10.30.44"
+#local ip
+IP_SATIE = "127.0.0.1"
 PORT = 5005
 
 LOG_BUFFER_SIZE = 100
 
-client = SimpleUDPClient(IP, PORT)
-satie = SimpleUDPClient(IP, 18032)
+client = SimpleUDPClient(IP_PROCESSING, PORT)
+satie = SimpleUDPClient(IP_SATIE, 18032)
 startTime = time.time()
 
 def samePattern(a, b):
@@ -166,62 +168,62 @@ def sensorToLog():
 			
 	if (FSR_STATE[0] == 1 and FSR_STATE[1] == 1):
 		filteredLogEntry("PG", 0)
-		satie.send_message("/satie/source/set", float(45))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(45)])
 		client.send_message("/FSR/PG", [FSR_SENSORS[0].read[Sensor.readIndex], FSR_SENSORS[1].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[0] == 1 and FSR_STATE[1] == 0):
 		filteredLogEntry("PG GAUCHE", 0)
-		satie.send_message("/satie/source/set", float(45))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(45)])
 		FSR_SENSORS[0].sendOSC()
 		
 	elif (FSR_STATE[0] == 0 and FSR_STATE[1] == 1):
 		filteredLogEntry("PG DROITE", 0)
-		satie.send_message("/satie/source/set", float(45))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(45)])
 		FSR_SENSORS[1].sendOSC()
 		
 	elif (FSR_STATE[2] == 1 and FSR_STATE[3] == 1):
 		filteredLogEntry("PD", 1)
-		satie.send_message("/satie/source/set", float(135))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(135)])
 		client.send_message("/FSR/PD",[FSR_SENSORS[2].read[Sensor.readIndex], FSR_SENSORS[3].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[2] == 1 and FSR_STATE[3] == 0):
 		filteredLogEntry("PD GAUCHE", 1)
-		satie.send_message("/satie/source/set", float(135))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(135)])
 		FSR_SENSORS[2].sendOSC()
 	
 	elif (FSR_STATE[2] == 0 and FSR_STATE[3] == 1):
 		filteredLogEntry("PD DROITE", 1)
-		satie.send_message("/satie/source/set", float(135))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(135)])
 		FSR_SENSORS[3].sendOSC()
 		
 	elif (FSR_STATE[4] == 1 and FSR_STATE[5] == 1):
 		filteredLogEntry("AG", 2)
-		satie.send_message("/satie/source/set", float(-45))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(-45)])
 		client.send_message("/FSR/AG",[FSR_SENSORS[4].read[Sensor.readIndex], FSR_SENSORS[5].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[4] == 1 and FSR_STATE[5] == 0):
 		filteredLogEntry("AG GAUCHE", 2)
-		satie.send_message("/satie/source/set", float(-45))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(-45)])
 		FSR_SENSORS[4].sendOSC()
 		
 	elif (FSR_STATE[4] == 0 and FSR_STATE[5] == 1):
 		filteredLogEntry("AG DROITE", 2)
-		satie.send_message("/satie/source/set", float(-45))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(-45)])
 		FSR_SENSORS[5].sendOSC()
 		
 	elif (FSR_STATE[6] == 1 and FSR_STATE[7] == 1):
 		filteredLogEntry("AD", 3)
-		satie.send_message("/satie/source/set", float(-135))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(-135)])
 		client.send_message("/FSR/AD",[FSR_SENSORS[6].read[Sensor.readIndex], FSR_SENSORS[7].read[Sensor.readIndex]])
 		
 	elif (FSR_STATE[6] == 1 and FSR_STATE[7] == 0):
 		filteredLogEntry("AD GAUCHE", 3)
-		satie.send_message("/satie/source/set", float(-135))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(-135)])
 		FSR_SENSORS[6].sendOSC()
 		
 	elif (FSR_STATE[6] == 0 and FSR_STATE[7] == 1):
 		filteredLogEntry("AD DROITE", 3)
-		satie.send_message("/satie/source/set", float(-135))
+		satie.send_message("/satie/source/set", ["micro", "aziDeg", float(-135)])
 		FSR_SENSORS[7].sendOSC()
 	
 	for i in range(NUM_PAD):
