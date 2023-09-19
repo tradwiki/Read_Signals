@@ -1,3 +1,10 @@
+/*
+Description:
+Script d'analyse du signal MIDI provenant directement de la planche pour être envoyé à Satie.
+Processing est utilisé pour relayer le signal dans le but de réduire la latence entre la planche
+satie 
+*/
+
 import themidibus.*; //Import the library
 import javax.sound.midi.MidiMessage; //Import the MidiMessage classes http://java.sun.com/j2se/1.5.0/docs/api/javax/sound/midi/MidiMessage.html
 import javax.sound.midi.SysexMessage;
