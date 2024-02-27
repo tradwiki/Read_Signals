@@ -8,7 +8,7 @@ This project showcases the use of analog piezo sensors and FSR sensors sending M
 ## Planche 5 - Read_Signals (Arduino Script)
 [Planche_5_-_Read_Signals](https://github.com/tradwiki/rythm-visuals-plank-5/tree/main/Planche_5_-_Read_Signals) is designed to be uploaded to a Teensy (3.6) controller via the arduino IDE (see [Teensyduino documentation](https://www.pjrc.com/teensy/teensyduino.html)). The script sends data through the serial port to notify of an analog value spike on specified pins when the polled value is above the baseline by a certain threshold. The baseline is averaged over the previous readings while they remain below threshold. The threshold is adjusted based on signal stability to allow for more sensitive readings with more stable sensors. The script also sends and/or receives MIDI signals across USB using Teensy built-in support (see [Teensy USB MIDI documentation](https://www.pjrc.com/teensy/td_midi.html)).
 
-<code style="color: Darkorange;">The arduino script iss downloaded once in the Teensy of the plank.</code> 
+<code style="color: Darkorange;">The arduino script is downloaded once in the Teensy of the plank.</code> 
 ### Configuration
 Modify [/Planche_5_-_Read_Signals/config.h](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/Planche_5_-_Read_Signals/config.h) to modify thresholds, delays, notes, pins, debug.
 #### Considerations
