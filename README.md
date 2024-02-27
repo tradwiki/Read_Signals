@@ -3,7 +3,7 @@ rythm-visuals-plank-5 is an adaptation of [rythm-visuals-plank-4](https://github
 It transforms the reading of sensors embedded in a plank and transforms it into a midi and OSC signal to generate visuals.
 
 ## Arduino script
-Planche_5_-_Read_Signals.ino is designed to be uploaded to a Teensy (3.6) controller via the arduino ide (see [Teensyduino documentation](https://www.pjrc.com/teensy/teensyduino.html)). The script sends data through the serial port to notify of an analog value spike on specified pins when the polled value is above the baseline by a certain threshold. The baseline is averaged over the previous readings while they remain below threshold. The threshold is adjusted based on signal stability to allow for more sensitive readings with more stable sensors. The script also sends and/or receives MIDI signals across USB using Teensy built-in support (see [Teensy USB MIDI documentation](https://www.pjrc.com/teensy/td_midi.html)).
+[Planche_5_-_Read_Signals.ino] is designed to be uploaded to a Teensy (3.6) controller via the arduino ide (see [Teensyduino documentation](https://www.pjrc.com/teensy/teensyduino.html)). The script sends data through the serial port to notify of an analog value spike on specified pins when the polled value is above the baseline by a certain threshold. The baseline is averaged over the previous readings while they remain below threshold. The threshold is adjusted based on signal stability to allow for more sensitive readings with more stable sensors. The script also sends and/or receives MIDI signals across USB using Teensy built-in support (see [Teensy USB MIDI documentation](https://www.pjrc.com/teensy/td_midi.html)).
 
 The arduino script only needs to be loaded once in the Teensy of the plank.
 
