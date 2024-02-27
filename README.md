@@ -1,5 +1,6 @@
 # rythm-visuals-plank-5
 ![Podorythmic drawplank setup](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/Media/2022-06-22-Rencontre-reseau-Photo-Ghislain-Jutras-18.gif)
+
 rythm-visuals-plank-5 is an adaptation of [rythm-visuals-plank-4](https://github.com/tradwiki/rythm-visuals-plank-4). 
 It transforms the reading of sensors embedded in a plank and transforms it into a midi and OSC signal to generate visuals.
 This project showcases the use of analog piezo sensors and FSR sensors sending MIDI signals through a custom circuit that are translated in OSC through python and sent to a processing program to generate visuals.
@@ -18,6 +19,7 @@ Modify [/Planche_5_-_Read_Signals/config.h](https://github.com/tradwiki/rythm-vi
 
 ## Analyse Signal (Python script)
 ![Analyse_signal screen capture](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/Media/Interface_scrip_python.png)
+
 The python script translates MIDI signals coming from the plank to OSC signals. It interpretates different spikes and repetitions based on the signal received from the serial port as well as bpm.
 The python script offers a visual interface of the incoming signals for troubleshooting through the pygame librairie.
 ### Configuration
@@ -30,7 +32,7 @@ The installation of the following librairies is required for the python script.
 
 ## Drawplank 2.0
 ![Drawplank screen capture](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/Media/Menu.png)
-[Drawplank 2.0] was developped in the specific context of video mapping through [Splash](https://sat.qc.ca/fr/splash/).
+[Drawplank 2.0](https://github.com/tradwiki/rythm-visuals-plank-5/tree/main/DrawPlanck-2.0) was developped with the purpose of being used for video mapping through [Splash](https://sat.qc.ca/fr/splash/).
 The program offers different modes of visual rendering of the plank's signal. 
 
 <code style="color: Darkorange;">In order to use Drawplank 2.0, the python script must be running.</code> 
