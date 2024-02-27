@@ -3,6 +3,8 @@
 # Podoboard 0.3
 The podoboard 0.3 is a custom printed pcb board that collects signals of 8 FSR sensors and 5 piezo sensors which were embedded in a Plank. The gerber files can be found in the [podoboard gerber](https://github.com/tradwiki/rythm-visuals-plank-5/tree/main/Circuit/podoboard%20gerber) folder.
 
+![Podoboard 0.3](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/Circuit/Podoboard%200.3%20-%20Photo%201.png)
+
 ### List of parts
 * [Teensy 3.6](https://www.pjrc.com/store/teensy36.html)
 * [FSR Sensor](https://www.sparkfun.com/products/9376) * 8
