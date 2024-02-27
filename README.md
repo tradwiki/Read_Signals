@@ -28,7 +28,7 @@ The installation of the following librairies is required for the python script.
 * [python-osc](https://pypi.org/project/python-osc)
 * [pygame](https://www.pygame.org/wiki/GettingStarted)
 
-## Processing
+## Drawplank 2.0
 ![Drawplank screen capture](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/Media/Menu.png)
 [Drawplank 2.0] was developped in the specific context of video mapping through [Splash](https://sat.qc.ca/fr/splash/).
 The program offers different modes of visual rendering of the plank's signal. 
