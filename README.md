@@ -7,7 +7,7 @@ This project showcases the use of analog piezo sensors and FSR sensors sending M
 
 ## Getting started
 * Connect the plank to the computer via USB.
-* Run the script [analyse_signal.py](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/python_script/analyse_signal.py)
+* Run the script [analyse_signal.py](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/python_script/analyse_signal.py](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/Analyse_signal/Analyse_signal.py)
 * Run Drawplank 2.0 script.
 
 ## Planche 5 - Read_Signals (Arduino Script)
@@ -28,7 +28,7 @@ Modify [/Planche_5_-_Read_Signals/config.h](https://github.com/tradwiki/rythm-vi
 The python script translates MIDI signals coming from the plank to OSC signals. It interpretates different spikes and repetitions based on the signal received from the serial port as well as bpm.
 The python script offers a visual interface of the incoming signals for troubleshooting through the pygame librairie.
 ### Configuration
-[Sensor.py](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/python_script/Sensor.py) defines the OSC signal parameters as well as the sensor names.
+[python_script/Sensor.py](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/Analyse_signal/Sensor.py) defines the OSC signal parameters as well as the sensor names.
 By default, data is sent to the IP address 10.10.30.44 through port 5005.
 #### Libraries for python
 The installation of the following librairies is required for the python script.
