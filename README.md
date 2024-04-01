@@ -7,7 +7,7 @@ This project showcases the use of analog piezo sensors and FSR sensors sending M
 
 ## Getting started
 * Connect the plank to the computer via USB.
-* Run the script [analyse_signal.py](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/python_script/analyse_signal.py](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/Analyse_signal/Analyse_signal.py)
+* Run the script [analyse_signal.py](https://github.com/tradwiki/rythm-visuals-plank-5/blob/main/Analyse_signal/Analyse_signal.py)
 * Run Drawplank 2.0 script.
 
 ## Planche 5 - Read_Signals (Arduino Script)
